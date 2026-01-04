@@ -7,6 +7,7 @@ Available themes:
 - light: Bright, minimal appearance
 - minimal: Reduced visual elements
 - vibrant: Bold, saturated colors
+- plotly_dark: Plotly-inspired dark theme with bright colors
 """
 
 from charter.themes.base import Theme
@@ -141,6 +142,38 @@ VIBRANT_THEME = Theme(
 )
 
 
+# Plotly Dark theme - Inspired by Plotly's dark template
+PLOTLY_DARK_THEME = Theme(
+    name="plotly_dark",
+    background_color="#111111",
+    text_color="#F2F5FA",
+    title_color="#FFFFFF",
+    grid_color="#283442",
+    axis_color="#506784",
+    palette=[
+        "#636EFA",  # Plotly Blue
+        "#EF553B",  # Plotly Red
+        "#00CC96",  # Plotly Green
+        "#AB63FA",  # Plotly Purple
+        "#FFA15A",  # Plotly Orange
+        "#19D3F3",  # Plotly Cyan
+        "#FF6692",  # Plotly Pink
+        "#B6E880",  # Plotly Lime
+        "#FF97FF",  # Plotly Magenta
+        "#FECB52",  # Plotly Yellow
+    ],
+    font_family="sans-serif",
+    title_font_size=16,
+    label_font_size=12,
+    tick_font_size=10,
+    legend_font_size=10,
+    line_width=2.0,
+    grid_alpha=0.3,
+    grid_style="solid",
+    spine_visible=False,
+)
+
+
 # Theme registry
 _THEMES: dict[str, Theme] = {
     "default": DEFAULT_THEME,
@@ -148,6 +181,7 @@ _THEMES: dict[str, Theme] = {
     "light": LIGHT_THEME,
     "minimal": MINIMAL_THEME,
     "vibrant": VIBRANT_THEME,
+    "plotly_dark": PLOTLY_DARK_THEME,
 }
 
 AVAILABLE_THEMES = list(_THEMES.keys())
@@ -158,7 +192,7 @@ def get_theme(name: str) -> Theme:
     Get a theme by name.
     
     Args:
-        name: Theme name (default, dark, light, minimal, vibrant)
+        name: Theme name (default, dark, light, minimal, vibrant, plotly_dark)
         
     Returns:
         Theme: The requested theme

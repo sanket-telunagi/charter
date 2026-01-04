@@ -11,10 +11,12 @@ from charter.charts.bar import BarChart
 from charter.charts.pie import PieChart
 from charter.charts.line import LineChart
 from charter.charts.timeseries import TimeSeriesChart
+from charter.charts.dashboard import DashboardChart
 from charter.config.settings import get_settings
 from charter.output.manager import get_output_manager, OutputFormat
 from charter.styles.registry import get_style_registry
 from charter.styles.presets import ChartType
+from charter.styles.dashboard import PanelConfig, DashboardLayout
 from charter.themes.presets import get_theme
 from charter.utils.validators import validate_chart_data
 
@@ -255,4 +257,106 @@ async def generate_timeseries_chart(
         xlabel=xlabel,
         ylabel=ylabel,
     )
+
+
+async def generate_dashboard(
+    panels: list[dict[str, Any]],
+    layout: dict[str, Any] | None = None,
+    theme: str = "plotly_dark",
+    title: str | None = None,
+    output_format: OutputFormat | None = None,
+    filename: str | None = None,
+    dpi: int | None = None,
+) -> Path:
+    """
+    Generate a multi-panel dashboard and save it to the output directory.
+    
+    Creates a composite figure with multiple charts arranged in a grid layout,
+    with optional shared legend and consistent theming.
+    
+    Args:
+        panels: List of panel configurations. Each panel is a dict with:
+            - chart_type: Type of chart ('bar', 'line', 'timeseries')
+            - data: Chart data dictionary
+            - style: Style name (default: 'default')
+            - title: Panel title
+            - xlabel, ylabel: Axis labels
+            - row, col: Grid position (0-indexed)
+            - colspan, rowspan: Grid span (default: 1)
+        layout: Dashboard layout configuration dict:
+            - rows: Number of grid rows (default: 1)
+            - cols: Number of grid columns (default: 2)
+            - figsize: Figure size as [width, height] (default: [16, 6])
+            - shared_legend: Show shared legend (default: True)
+            - legend_position: 'top', 'bottom', or 'right' (default: 'top')
+            - width_ratios: Column width ratios (e.g., [2, 1])
+            - height_ratios: Row height ratios
+        theme: Theme name for all panels (default: 'plotly_dark')
+        title: Dashboard title
+        output_format: Output file format ('png', 'svg', 'pdf', 'jpeg')
+        filename: Custom filename (without extension)
+        dpi: DPI override for raster formats
+        
+    Returns:
+        Path: Full path to the generated dashboard file
+        
+    Examples:
+        Traffic and latency dashboard:
+        >>> path = await generate_dashboard(
+        ...     panels=[
+        ...         {
+        ...             "chart_type": "timeseries",
+        ...             "data": {"dates": dates, "series": {...}},
+        ...             "title": "Traffic Volume",
+        ...             "col": 0,
+        ...         },
+        ...         {
+        ...             "chart_type": "bar",
+        ...             "data": {"labels": times, "values": latencies},
+        ...             "title": "Latency (ms)",
+        ...             "col": 1,
+        ...         },
+        ...     ],
+        ...     layout={"cols": 2, "width_ratios": [2, 1]},
+        ...     theme="plotly_dark",
+        ...     title="System Dashboard",
+        ... )
+    """
+    # Get settings
+    settings = get_settings()
+    
+    # Resolve defaults
+    resolved_format = output_format or settings.default_format
+    
+    # Parse panel configs
+    panel_configs = [PanelConfig.from_dict(p) for p in panels]
+    
+    # Parse layout config
+    layout_config = DashboardLayout.from_dict(layout)
+    
+    # Get theme
+    dashboard_theme = get_theme(theme)
+    
+    # Create dashboard
+    dashboard = DashboardChart(
+        panels=panel_configs,
+        layout=layout_config,
+        theme=dashboard_theme,
+        title=title,
+    )
+    
+    # Render
+    figure = await dashboard.render()
+    
+    # Save to file
+    output_manager = get_output_manager()
+    output_path = await output_manager.save_chart(
+        figure=figure,
+        chart_type="dashboard",
+        output_format=resolved_format,
+        filename=filename,
+        dpi=dpi,
+    )
+    
+    return output_path
 

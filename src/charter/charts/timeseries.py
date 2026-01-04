@@ -6,8 +6,11 @@ Supports:
 - Trend lines
 - Confidence/range bands
 - Area fills
+- Automatic downsampling for large datasets (LTTB algorithm)
+- Rasterization for improved performance
 """
 
+import warnings
 from typing import Any
 from datetime import datetime
 
@@ -18,8 +21,10 @@ import matplotlib.dates as mdates
 from matplotlib.figure import Figure
 
 from charter.charts.base import BaseChart
+from charter.config.settings import get_settings
 from charter.styles.presets import TimeSeriesStyle
 from charter.themes.base import Theme
+from charter.utils.downsampling import lttb_downsample
 
 
 class TimeSeriesChart(BaseChart):
@@ -73,26 +78,54 @@ class TimeSeriesChart(BaseChart):
         """Render the time series chart synchronously."""
         fig, ax = self._create_figure()
         
+        self._render_to_axes_impl(ax)
+        self._apply_labels(ax)
+        self._apply_legend(ax)
+        
+        return self._finalize_figure(fig)
+    
+    def _render_to_axes_impl(self, ax: plt.Axes) -> None:
+        """Render time series content to an existing axes."""
         # Parse dates
         dates = self._parse_dates(self.data.get("dates", []))
         
+        # Determine if rasterization should be applied
+        should_rasterize = self._should_rasterize(len(dates))
+        
         # Check if we have multiple series or single series
         if "series" in self.data:
-            self._render_multi_series(ax, dates)
+            self._render_multi_series(ax, dates, rasterize=should_rasterize)
         else:
             values = np.array(self.data.get("values", []))
-            self._render_single_series(ax, dates, values, color=self.theme.get_color(0))
+            
+            # Apply downsampling if needed
+            dates, values = self._maybe_downsample(dates, values)
+            
+            self._render_single_series(
+                ax, dates, values, 
+                color=self.theme.get_color(0),
+                rasterize=should_rasterize
+            )
             
             # Add range bands if present
             if self.style.range_bands and "upper" in self.data and "lower" in self.data:
                 upper = np.array(self.data["upper"])
                 lower = np.array(self.data["lower"])
+                # Downsample range bands too if main data was downsampled
+                if len(upper) != len(dates):
+                    _, upper = self._maybe_downsample(
+                        self._parse_dates(self.data.get("dates", [])), upper
+                    )
+                    _, lower = self._maybe_downsample(
+                        self._parse_dates(self.data.get("dates", [])), lower
+                    )
                 self._add_range_bands(ax, dates, upper, lower, self.theme.get_color(0))
         
-        # Add trend line if requested
+        # Add trend line if requested (use original data for accurate trend)
         if self.style.show_trend and "values" in self.data:
-            values = np.array(self.data["values"])
-            self._add_trend_line(ax, dates, values)
+            original_dates = self._parse_dates(self.data.get("dates", []))
+            original_values = np.array(self.data["values"])
+            self._add_trend_line(ax, original_dates, original_values)
         
         # Format date axis
         self._format_date_axis(ax)
@@ -102,11 +135,56 @@ class TimeSeriesChart(BaseChart):
             ax.grid(True, alpha=self.theme.grid_alpha, color=self.theme.grid_color)
         else:
             ax.grid(False)
+    
+    def _get_downsample_threshold(self) -> int:
+        """Get the effective downsample threshold."""
+        if self.style.downsample_threshold is not None:
+            return self.style.downsample_threshold
+        return self._settings.downsample_threshold
+    
+    def _should_rasterize(self, n_points: int) -> bool:
+        """Determine if the plot should be rasterized."""
+        if self.style.rasterize:
+            return True
+        if self.style.auto_rasterize:
+            return n_points > self._settings.auto_rasterize_threshold
+        return False
+    
+    def _maybe_downsample(
+        self,
+        dates: list[datetime],
+        values: np.ndarray,
+    ) -> tuple[list[datetime], np.ndarray]:
+        """Apply LTTB downsampling if data exceeds threshold."""
+        n_points = len(values)
+        threshold = self._get_downsample_threshold()
         
-        self._apply_labels(ax)
-        self._apply_legend(ax)
+        # Skip if downsampling is disabled or not needed
+        if not self.style.auto_downsample or threshold <= 0:
+            return dates, values
         
-        return self._finalize_figure(fig)
+        if n_points <= threshold:
+            return dates, values
+        
+        # Apply hard limit from settings
+        target_points = min(threshold, self._settings.max_render_points)
+        
+        # Log warning for very large datasets
+        if n_points > 100000:
+            warnings.warn(
+                f"Large dataset ({n_points:,} points) being downsampled to {target_points:,} points. "
+                f"Set auto_downsample=False to disable.",
+                UserWarning,
+                stacklevel=3,
+            )
+        
+        # Apply LTTB downsampling
+        dates_arr = np.array(dates)
+        downsampled_dates, downsampled_values = lttb_downsample(
+            dates_arr, values, threshold=target_points
+        )
+        
+        return list(downsampled_dates), downsampled_values
 
     def _parse_dates(self, dates: list) -> list[datetime]:
         """Parse dates from various formats."""
@@ -141,12 +219,14 @@ class TimeSeriesChart(BaseChart):
         values: np.ndarray,
         color: str,
         label: str | None = None,
+        rasterize: bool = False,
     ) -> None:
         """Render a single time series."""
         line_kwargs = {
             "color": color,
             "linewidth": self.theme.line_width,
             "linestyle": self._get_linestyle(),
+            "rasterized": rasterize,
         }
         
         if label:
@@ -154,9 +234,13 @@ class TimeSeriesChart(BaseChart):
         
         ax.plot(dates, values, **line_kwargs)
         
-        # Add markers if specified
-        if self.style.marker:
-            ax.scatter(dates, values, color=color, s=36, marker=self.style.marker, zorder=5)
+        # Add markers if specified (skip for very large datasets)
+        if self.style.marker and len(values) < 10000:
+            ax.scatter(
+                dates, values, 
+                color=color, s=36, marker=self.style.marker, zorder=5,
+                rasterized=rasterize
+            )
         
         # Fill area if needed
         if self.style.fill_area:
@@ -164,12 +248,14 @@ class TimeSeriesChart(BaseChart):
                 dates, values, 0,
                 color=color,
                 alpha=self.style.fill_alpha,
+                rasterized=rasterize,
             )
 
     def _render_multi_series(
         self,
         ax: plt.Axes,
         dates: list[datetime],
+        rasterize: bool = False,
     ) -> None:
         """Render multiple time series."""
         series_data = self.data.get("series", {})
@@ -177,7 +263,14 @@ class TimeSeriesChart(BaseChart):
         for i, (name, values) in enumerate(series_data.items()):
             y = np.array(values)
             color = self.theme.get_color(i)
-            self._render_single_series(ax, dates, y, color=color, label=name)
+            
+            # Apply downsampling to each series
+            series_dates, series_values = self._maybe_downsample(dates, y)
+            
+            self._render_single_series(
+                ax, series_dates, series_values, 
+                color=color, label=name, rasterize=rasterize
+            )
 
     def _add_range_bands(
         self,

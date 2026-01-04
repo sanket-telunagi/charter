@@ -217,6 +217,12 @@ class TimeSeriesStyle(Style):
         trend_color: Color for trend line
         range_bands: Whether to show confidence/range bands
         band_alpha: Alpha for range bands
+        marker: Marker style for data points
+        line_style: Line style (solid, dashed, dotted, dashdot)
+        auto_downsample: Whether to automatically downsample large datasets
+        downsample_threshold: Override settings threshold (None uses settings default)
+        rasterize: Force rasterization of the plot
+        auto_rasterize: Automatically rasterize large datasets
     """
     chart_type: ChartType = ChartType.TIMESERIES
     date_format: str = "%Y-%m-%d"
@@ -229,6 +235,11 @@ class TimeSeriesStyle(Style):
     band_alpha: float = 0.15
     marker: str | None = None
     line_style: str = "solid"
+    # Large dataset handling
+    auto_downsample: bool = True
+    downsample_threshold: int | None = None
+    rasterize: bool = False
+    auto_rasterize: bool = True
 
 
 # Built-in time series styles
@@ -238,5 +249,13 @@ TIMESERIES_STYLES: dict[str, TimeSeriesStyle] = {
     "trend": TimeSeriesStyle(name="trend", show_trend=True),
     "range": TimeSeriesStyle(name="range", range_bands=True),
     "minimal": TimeSeriesStyle(name="minimal", show_grid=False),
+    "large_dataset": TimeSeriesStyle(
+        name="large_dataset",
+        auto_downsample=True,
+        auto_rasterize=True,
+        show_grid=True,
+        line_style="solid",
+        date_format="%Y-%m-%d %H:%M",
+    ),
 }
 

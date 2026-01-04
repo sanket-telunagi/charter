@@ -32,6 +32,11 @@ class ChartSettings(BaseSettings):
     include_timestamp: bool = True
     include_random_suffix: bool = True
 
+    # Large dataset handling
+    downsample_threshold: int = 10000  # Auto-downsample time series above this point count
+    max_render_points: int = 50000  # Hard limit for rendering (downsample to this if exceeded)
+    auto_rasterize_threshold: int = 20000  # Auto-rasterize plots above this point count
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

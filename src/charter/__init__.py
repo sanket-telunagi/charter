@@ -49,6 +49,7 @@ from charter.api import (
     generate_pie_chart,
     generate_line_chart,
     generate_timeseries_chart,
+    generate_dashboard,
 )
 from charter.config.settings import get_settings, reload_settings, ChartSettings
 from charter.themes.presets import get_theme, AVAILABLE_THEMES, register_theme
@@ -62,7 +63,14 @@ from charter.styles.presets import (
     TimeSeriesStyle,
     ChartType,
 )
+from charter.styles.dashboard import (
+    PanelConfig,
+    DashboardLayout,
+    DASHBOARD_LAYOUTS,
+    get_dashboard_layout,
+)
 from charter.utils.validators import validate_chart_data, ChartDataError
+from charter.utils.downsampling import lttb_downsample, simple_downsample, minmax_downsample
 
 __version__ = "0.1.0"
 
@@ -73,6 +81,7 @@ __all__ = [
     "generate_pie_chart",
     "generate_line_chart",
     "generate_timeseries_chart",
+    "generate_dashboard",
     # Configuration
     "get_settings",
     "reload_settings",
@@ -90,9 +99,18 @@ __all__ = [
     "LineStyle",
     "TimeSeriesStyle",
     "ChartType",
+    # Dashboard
+    "PanelConfig",
+    "DashboardLayout",
+    "DASHBOARD_LAYOUTS",
+    "get_dashboard_layout",
     # Validation
     "validate_chart_data",
     "ChartDataError",
+    # Downsampling utilities
+    "lttb_downsample",
+    "simple_downsample",
+    "minmax_downsample",
     # Version
     "__version__",
 ]

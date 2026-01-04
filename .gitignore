@@ -13,5 +13,5 @@ wheels/
 .env
 
 # Output directory contents (keep directory, ignore files)
-output/*
+# output/*
 !output/.gitkeep

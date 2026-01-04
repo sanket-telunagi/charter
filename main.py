@@ -11,13 +11,17 @@ import asyncio
 import argparse
 import json
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
+
+import numpy as np
 
 # Add src to path for development
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from charter import (
     generate_chart,
+    generate_dashboard,
     get_settings,
     AVAILABLE_THEMES,
     get_style_registry,
@@ -207,7 +211,194 @@ async def demo() -> None:
     )
     print(f"   Saved: {timeseries_path}")
     
-    print()
+    print("8. Generating time series chart with plotly dark theme...")
+    generate_chart_plotly_theme = await generate_chart(
+        chart_type="timeseries",
+        data={
+            "dates": ["2024-01-01", "2024-01-02", "2024-01-03"],
+            "values": [100, 105, 110],
+        },
+        theme="plotly_dark",
+        title="Yearly Order Volume",
+    )
+    print(f"   Saved: {generate_chart_plotly_theme}")
+    
+    # Demo high-granularity time series with automatic downsampling
+    print("9. Generating high-granularity time series (50K points with LTTB downsampling)...")
+    
+    # Generate 50,000 data points (simulating ~35 days of 1-minute data)
+    n_points = 50000
+    start_date = datetime(2024, 1, 1)
+    dates_large = [start_date + timedelta(minutes=i) for i in range(n_points)]
+    
+    # Create realistic-looking data with trend, seasonality, and noise
+    t = np.arange(n_points)
+    trend = 100 + 0.001 * t  # Slight upward trend
+    daily_cycle = 20 * np.sin(2 * np.pi * t / 1440)  # 24-hour cycle (1440 minutes)
+    noise = np.random.normal(0, 5, n_points)  # Random noise
+    values_large = trend + daily_cycle + noise
+    
+    large_ts_path = await generate_chart(
+        chart_type="timeseries",
+        data={
+            "dates": dates_large,
+            "values": values_large.tolist(),
+        },
+        style="large_dataset",  # Uses auto_downsample and auto_rasterize
+        theme="plotly_dark",
+        title=f"Sensor Readings (Original: {n_points:,} pts → Auto-downsampled)",
+        xlabel="Time",
+        ylabel="Value",
+    )
+    print(f"   Saved: {large_ts_path}")
+    
+    # Demo with multiple series and high granularity
+    print("10. Generating multi-series high-granularity chart...")
+    n_points_multi = 25000
+    dates_multi = [start_date + timedelta(minutes=i) for i in range(n_points_multi)]
+    t_multi = np.arange(n_points_multi)
+    
+    multi_series_path = await generate_chart(
+        chart_type="timeseries",
+        data={
+            "dates": dates_multi,
+            "series": {
+                "Temperature": (25 + 5 * np.sin(2 * np.pi * t_multi / 1440) + np.random.normal(0, 1, n_points_multi)).tolist(),
+                "Humidity": (60 + 10 * np.cos(2 * np.pi * t_multi / 1440) + np.random.normal(0, 2, n_points_multi)).tolist(),
+            },
+        },
+        style="large_dataset",
+        theme="dark",
+        title=f"Environmental Sensors ({n_points_multi:,} points each)",
+        xlabel="Time",
+        ylabel="Reading",
+    )
+    print(f"   Saved: {multi_series_path}")
+    
+    # Demo dashboard - Traffic Volume + Latency (like the reference image)
+    print("11. Generating Traffic Volume + Latency dashboard...")
+    
+    # Generate realistic traffic data (1 hour of 1-minute data)
+    n_dashboard_points = 60
+    dashboard_start = datetime(2026, 1, 4, 20, 30)
+    dashboard_dates = [dashboard_start + timedelta(minutes=i) for i in range(n_dashboard_points)]
+    
+    # Primary and Secondary node traffic with slight correlation
+    t_dash = np.arange(n_dashboard_points)
+    base_traffic = 50 + 5 * np.sin(2 * np.pi * t_dash / 30)  # 30-min cycle
+    primary_traffic = base_traffic + np.random.normal(0, 3, n_dashboard_points) + 10
+    secondary_traffic = base_traffic + np.random.normal(0, 2, n_dashboard_points)
+    
+    # Simulate a brief dip/spike around minute 30
+    primary_traffic[28:35] = primary_traffic[28:35] - 20
+    secondary_traffic[28:35] = secondary_traffic[28:35] - 15
+    
+    # Latency data for bar chart (10-minute intervals)
+    latency_times = ["10:30", "10:40", "10:50", "11:00", "11:10"]
+    latency_values = [91.0, 92.2, 93.0, 92.5, 92.3]
+    
+    dashboard_path = await generate_dashboard(
+        panels=[
+            {
+                "chart_type": "timeseries",
+                "data": {
+                    "dates": dashboard_dates,
+                    "series": {
+                        "Secondary Node": secondary_traffic.tolist(),
+                        "Primary Node": primary_traffic.tolist(),
+                    },
+                },
+                "style": "default",
+                "title": "Traffic Volume",
+                "ylabel": "",
+                "col": 0,
+            },
+            {
+                "chart_type": "bar",
+                "data": {
+                    "labels": latency_times,
+                    "values": latency_values,
+                },
+                "style": "default",
+                "title": "Latency (ms)",
+                "col": 1,
+            },
+        ],
+        layout={
+            "cols": 2,
+            "width_ratios": [2.5, 1],
+            "figsize": [18, 6],
+            "shared_legend": True,
+            "legend_position": "top",
+        },
+        theme="plotly_dark",
+        title="",
+    )
+    print(f"   Saved: {dashboard_path}")
+    
+    # Demo a 2x2 grid dashboard
+    print("12. Generating 2x2 grid dashboard...")
+    
+    grid_dashboard_path = await generate_dashboard(
+        panels=[
+            {
+                "chart_type": "bar",
+                "data": {
+                    "labels": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+                    "values": [120, 150, 135, 180, 165],
+                },
+                "title": "Daily Orders",
+                "row": 0, "col": 0,
+            },
+            {
+                "chart_type": "line",
+                "data": {
+                    "labels": ["Week 1", "Week 2", "Week 3", "Week 4"],
+                    "series": {
+                        "Revenue": [1200, 1350, 1280, 1500],
+                        "Costs": [800, 850, 820, 900],
+                    },
+                },
+                "style": "smooth",
+                "title": "Monthly Financials",
+                "row": 0, "col": 1,
+            },
+            {
+                "chart_type": "timeseries",
+                "data": {
+                    "dates": [datetime(2026, 1, i) for i in range(1, 8)],
+                    "values": [45, 52, 48, 61, 55, 58, 62],
+                },
+                "style": "area",
+                "title": "Weekly Active Users",
+                "row": 1, "col": 0,
+            },
+            {
+                "chart_type": "bar",
+                "data": {
+                    "labels": ["Product A", "Product B", "Product C"],
+                    "series": {
+                        "Q1": [30, 45, 28],
+                        "Q2": [35, 50, 32],
+                    },
+                },
+                "style": "grouped",
+                "title": "Product Sales",
+                "row": 1, "col": 1,
+            },
+        ],
+        layout={
+            "rows": 2,
+            "cols": 2,
+            "figsize": [14, 10],
+            "shared_legend": True,
+            "legend_position": "top",
+        },
+        theme="plotly_dark",
+        title="Business Metrics Dashboard",
+    )
+    print(f"   Saved: {grid_dashboard_path}")
+
     print("=" * 50)
     print("Demo complete! Check the output directory for generated charts.")
 

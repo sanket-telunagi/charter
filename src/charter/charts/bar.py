@@ -56,6 +56,14 @@ class BarChart(BaseChart):
         """Render the bar chart synchronously."""
         fig, ax = self._create_figure()
         
+        self._render_to_axes_impl(ax)
+        self._apply_labels(ax)
+        self._apply_legend(ax)
+        
+        return self._finalize_figure(fig)
+    
+    def _render_to_axes_impl(self, ax: plt.Axes) -> None:
+        """Render bar chart content to an existing axes."""
         labels = self.data.get("labels", [])
         
         # Check if we have multiple series or single series
@@ -64,11 +72,6 @@ class BarChart(BaseChart):
         else:
             values = self.data.get("values", [])
             self._render_single_series(ax, labels, values)
-        
-        self._apply_labels(ax)
-        self._apply_legend(ax)
-        
-        return self._finalize_figure(fig)
 
     def _render_single_series(
         self,

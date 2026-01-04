@@ -64,6 +64,14 @@ class LineChart(BaseChart):
         """Render the line chart synchronously."""
         fig, ax = self._create_figure()
         
+        self._render_to_axes_impl(ax)
+        self._apply_labels(ax)
+        self._apply_legend(ax)
+        
+        return self._finalize_figure(fig)
+    
+    def _render_to_axes_impl(self, ax: plt.Axes) -> None:
+        """Render line chart content to an existing axes."""
         # Get x values or generate from labels
         if "labels" in self.data:
             labels = self.data["labels"]
@@ -72,7 +80,6 @@ class LineChart(BaseChart):
             ax.set_xticklabels(labels)
         else:
             x = np.array(self.data.get("x", []))
-            labels = None
         
         # Check if we have multiple series or single series
         if "series" in self.data:
@@ -80,11 +87,6 @@ class LineChart(BaseChart):
         else:
             y = np.array(self.data.get("y", []))
             self._render_single_series(ax, x, y, color=self.theme.get_color(0))
-        
-        self._apply_labels(ax)
-        self._apply_legend(ax)
-        
-        return self._finalize_figure(fig)
 
     def _render_single_series(
         self,

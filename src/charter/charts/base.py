@@ -82,6 +82,45 @@ class BaseChart(ABC):
         """
         pass
 
+    def render_to_axes(self, ax: plt.Axes) -> plt.Axes:
+        """
+        Render the chart to an existing axes (for dashboard embedding).
+        
+        This method renders the chart content to a provided axes object
+        rather than creating a new figure. Useful for multi-panel dashboards.
+        
+        Args:
+            ax: matplotlib Axes to render into
+            
+        Returns:
+            Axes: The axes with rendered content
+        """
+        # Apply theme to the axes
+        self.theme.apply_to_axes(ax)
+        
+        # Call the subclass-specific axes rendering
+        self._render_to_axes_impl(ax)
+        
+        # Apply labels
+        self._apply_labels(ax)
+        
+        return ax
+    
+    def _render_to_axes_impl(self, ax: plt.Axes) -> None:
+        """
+        Subclass-specific axes rendering implementation.
+        
+        Override this method in subclasses to render chart content
+        to a provided axes. Default implementation raises NotImplementedError.
+        
+        Args:
+            ax: matplotlib Axes to render into
+        """
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support render_to_axes. "
+            "Override _render_to_axes_impl to add support."
+        )
+
     def _create_figure(self) -> tuple[Figure, plt.Axes]:
         """
         Create a new figure and axes with theme applied.
