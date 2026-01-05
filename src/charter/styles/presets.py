@@ -103,6 +103,11 @@ class PieStyle(Style):
         center_title_bbox_facecolor: Background color for center title box
         center_title_bbox_alpha: Transparency for center title box
         center_title_bbox_pad: Padding for center title box
+        table_legend: Whether to show a table legend on the side instead of labels
+        table_legend_position: Position of table legend ('right', 'bottom', 'left')
+        table_legend_show_value: Whether to show value column in table legend
+        table_legend_show_percent: Whether to show percentage column in table legend
+        table_legend_header: Whether to show column headers in table legend
     """
     chart_type: ChartType = ChartType.PIE
     donut: bool = False
@@ -133,6 +138,12 @@ class PieStyle(Style):
     center_title_bbox_facecolor: str = "#333333"
     center_title_bbox_alpha: float = 0.85
     center_title_bbox_pad: float = 0.5
+    # Table legend style options
+    table_legend: bool = False
+    table_legend_position: Literal["right", "bottom", "left"] = "right"
+    table_legend_show_value: bool = True
+    table_legend_show_percent: bool = True
+    table_legend_header: bool = False
 
 
 # Built-in pie styles
@@ -186,6 +197,21 @@ PIE_STYLES: dict[str, PieStyle] = {
         counter_clockwise=False,
         transparent_background=True,
         leader_line_color="#777777",
+    ),
+    "table_legend": PieStyle(
+        name="table_legend",
+        donut=False,
+        table_legend=True,
+        show_percentages=False,
+        show_labels=False,
+    ),
+    "table_legend_donut": PieStyle(
+        name="table_legend_donut",
+        donut=True,
+        donut_ratio=0.5,
+        table_legend=True,
+        show_percentages=False,
+        show_labels=False,
     ),
 }
 

@@ -196,6 +196,20 @@ await generate_chart(
 )
 ```
 
+#### Table Legend Style (Side Legend with Values)
+
+```python
+await generate_chart(
+    chart_type="pie",
+    data={
+        "labels": ["Desktop", "Mobile", "Tablet", "Other"],
+        "values": [42, 35, 18, 5],
+    },
+    style="table_legend",  # Or "table_legend_donut" for donut variant
+    title="Traffic by Device",
+)
+```
+
 #### Pie Styles
 
 | Style | Description |
@@ -208,6 +222,9 @@ await generate_chart(
 | `shadow` | Subtle shadow effect |
 | `infographic` | External labels with leader lines |
 | `annotated` | Annotation-based labels with rounded boxes, custom colors, gaps, center title |
+| `transparent_donut` | Donut with transparent background and center title with rounded box |
+| `table_legend` | Pie chart with table legend on the side showing labels, values, and percentages |
+| `table_legend_donut` | Donut chart with table legend on the side |
 
 ---
 
@@ -890,6 +907,18 @@ This creates all style/theme combinations in `output/gallery/`.
 | Default | Dark | Plotly Dark |
 |---------|------|-------------|
 | ![](output/gallery/pie_transparent_donut_default.png) | ![](output/gallery/pie_transparent_donut_dark.png) | ![](output/gallery/pie_transparent_donut_plotly_dark.png) |
+
+#### table_legend
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_table_legend_default.png) | ![](output/gallery/pie_table_legend_dark.png) | ![](output/gallery/pie_table_legend_plotly_dark.png) |
+
+#### table_legend_donut
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_table_legend_donut_default.png) | ![](output/gallery/pie_table_legend_donut_dark.png) | ![](output/gallery/pie_table_legend_donut_plotly_dark.png) |
 
 ---
 

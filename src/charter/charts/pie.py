@@ -14,7 +14,8 @@ from typing import Any
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from matplotlib.patches import ConnectionPatch
+from matplotlib.patches import ConnectionPatch, Rectangle
+from matplotlib.gridspec import GridSpec
 
 from charter.charts.base import BaseChart
 from charter.styles.presets import PieStyle
@@ -53,6 +54,10 @@ class PieChart(BaseChart):
 
     def _render_sync(self) -> Figure:
         """Render the pie chart synchronously."""
+        # Use table legend rendering if style requires it
+        if self.style.table_legend:
+            return self._render_table_legend()
+        
         # Use infographic rendering if style requires it
         if self.style.infographic:
             return self._render_infographic()
@@ -503,4 +508,278 @@ class PieChart(BaseChart):
             linewidth=0,
         )
         ax.add_patch(center_circle)
+
+    def _render_table_legend(self) -> Figure:
+        """Render pie chart with table legend on the side."""
+        labels = self.data.get("labels", [])
+        values = self.data.get("values", [])
+        
+        # Generate colors from theme
+        colors = [self.theme.get_color(i) for i in range(len(values))]
+        
+        # Determine figure size and layout based on legend position
+        figsize = self._settings.default_figsize or self.theme.figsize
+        position = self.style.table_legend_position
+        
+        if position == "right":
+            fig = plt.figure(figsize=(figsize[0] * 1.4, figsize[1]))
+            gs = GridSpec(1, 2, width_ratios=[3, 2], wspace=0.1)
+            ax_pie = fig.add_subplot(gs[0])
+            ax_legend = fig.add_subplot(gs[1])
+        elif position == "left":
+            fig = plt.figure(figsize=(figsize[0] * 1.4, figsize[1]))
+            gs = GridSpec(1, 2, width_ratios=[2, 3], wspace=0.1)
+            ax_legend = fig.add_subplot(gs[0])
+            ax_pie = fig.add_subplot(gs[1])
+        else:  # bottom
+            fig = plt.figure(figsize=(figsize[0], figsize[1] * 1.3))
+            gs = GridSpec(2, 1, height_ratios=[3, 1.5], hspace=0.15)
+            ax_pie = fig.add_subplot(gs[0])
+            ax_legend = fig.add_subplot(gs[1])
+        
+        # Apply theme to figure
+        self.theme.apply_to_figure(fig)
+        ax_pie.set_facecolor(self.theme.background_color)
+        ax_legend.set_facecolor(self.theme.background_color)
+        
+        # Calculate donut width if donut style
+        donut_width = 1 - self.style.donut_ratio if self.style.donut else 1
+        
+        # Create pie chart without labels
+        wedges, _ = ax_pie.pie(
+            values,
+            colors=colors,
+            startangle=self.style.start_angle,
+            counterclock=self.style.counter_clockwise,
+            shadow=self.style.shadow,
+            wedgeprops={
+                "width": donut_width,
+                "linewidth": 1.5,
+                "edgecolor": self.theme.background_color,
+            },
+        )
+        
+        # Handle donut style with center hole for non-wedgeprops approach
+        # (wedgeprops width handles this automatically)
+        
+        ax_pie.set_aspect("equal")
+        
+        # Render table legend
+        self._render_legend_table(ax_legend, labels, values, colors, position)
+        
+        # Add title if provided
+        if self.title:
+            fig.suptitle(
+                self.title,
+                fontsize=self.theme.title_font_size,
+                color=self.theme.title_color,
+                fontfamily=self.theme.font_family,
+                fontweight="bold",
+                y=0.98,
+            )
+        
+        # Adjust spacing (tight_layout doesn't work well with GridSpec)
+        plt.subplots_adjust(left=0.05, right=0.95, top=0.92, bottom=0.05)
+        
+        return fig
+    
+    def _render_legend_table(
+        self,
+        ax: plt.Axes,
+        labels: list[str],
+        values: list,
+        colors: list[str],
+        position: str = "right",
+    ) -> None:
+        """
+        Render the table legend with color indicators, labels, values, and percentages.
+        
+        Args:
+            ax: matplotlib Axes for the legend
+            labels: List of category labels
+            values: List of values
+            colors: List of colors for each category
+            position: Position of legend ('right', 'left', 'bottom')
+        """
+        ax.axis("off")
+        
+        total = sum(values)
+        n_rows = len(labels)
+        
+        # Calculate column positions based on what to show
+        show_value = self.style.table_legend_show_value
+        show_percent = self.style.table_legend_show_percent
+        show_header = self.style.table_legend_header
+        
+        # Adjust layout for bottom position (horizontal)
+        if position == "bottom":
+            self._render_legend_table_horizontal(ax, labels, values, colors, total)
+            return
+        
+        # Vertical layout (right or left)
+        # Define column positions
+        col_color = 0.02
+        col_label = 0.12
+        col_value = 0.75 if show_percent else 0.9
+        col_percent = 0.95
+        
+        # Calculate row height based on number of items
+        header_offset = 1 if show_header else 0
+        total_rows = n_rows + header_offset
+        row_height = min(0.12, 0.9 / total_rows)
+        start_y = 0.95 - (0.1 if show_header else 0.05)
+        
+        # Add headers if enabled
+        if show_header:
+            header_y = start_y + row_height
+            ax.text(
+                col_label, header_y, "Category",
+                fontsize=self.theme.tick_font_size,
+                fontweight="bold",
+                color=self.theme.text_color,
+                fontfamily=self.theme.font_family,
+                va="center",
+            )
+            if show_value:
+                ax.text(
+                    col_value, header_y, "Value",
+                    fontsize=self.theme.tick_font_size,
+                    fontweight="bold",
+                    color=self.theme.text_color,
+                    fontfamily=self.theme.font_family,
+                    ha="right",
+                    va="center",
+                )
+            if show_percent:
+                ax.text(
+                    col_percent, header_y, "%",
+                    fontsize=self.theme.tick_font_size,
+                    fontweight="bold",
+                    color=self.theme.text_color,
+                    fontfamily=self.theme.font_family,
+                    ha="right",
+                    va="center",
+                )
+        
+        # Render each row
+        for i, (label, value, color) in enumerate(zip(labels, values, colors)):
+            y = start_y - (i * row_height)
+            pct = (value / total) * 100 if total > 0 else 0
+            
+            # Color indicator (small rectangle)
+            rect = Rectangle(
+                (col_color, y - row_height * 0.3),
+                0.06,
+                row_height * 0.6,
+                facecolor=color,
+                edgecolor="none",
+            )
+            ax.add_patch(rect)
+            
+            # Label text
+            ax.text(
+                col_label, y,
+                label,
+                fontsize=self.theme.label_font_size,
+                color=self.theme.text_color,
+                fontfamily=self.theme.font_family,
+                va="center",
+            )
+            
+            # Value (right-aligned)
+            if show_value:
+                ax.text(
+                    col_value, y,
+                    f"{value:,.0f}" if isinstance(value, (int, float)) else str(value),
+                    fontsize=self.theme.label_font_size,
+                    color=self.theme.text_color,
+                    fontfamily=self.theme.font_family,
+                    ha="right",
+                    va="center",
+                )
+            
+            # Percentage (right-aligned)
+            if show_percent:
+                ax.text(
+                    col_percent, y,
+                    f"{pct:.1f}%",
+                    fontsize=self.theme.label_font_size,
+                    color=self.theme.text_color,
+                    fontfamily=self.theme.font_family,
+                    ha="right",
+                    va="center",
+                )
+        
+        # Set axis limits
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+    
+    def _render_legend_table_horizontal(
+        self,
+        ax: plt.Axes,
+        labels: list[str],
+        values: list,
+        colors: list[str],
+        total: float,
+    ) -> None:
+        """Render legend table in horizontal layout for bottom position."""
+        show_value = self.style.table_legend_show_value
+        show_percent = self.style.table_legend_show_percent
+        
+        n_items = len(labels)
+        
+        # Calculate item width and spacing
+        item_width = 0.9 / n_items
+        start_x = 0.05
+        y_color = 0.7
+        y_label = 0.45
+        y_value = 0.2
+        
+        for i, (label, value, color) in enumerate(zip(labels, values, colors)):
+            x = start_x + (i * item_width) + (item_width / 2)
+            pct = (value / total) * 100 if total > 0 else 0
+            
+            # Color indicator (small rectangle)
+            rect_width = min(0.04, item_width * 0.3)
+            rect = Rectangle(
+                (x - rect_width / 2, y_color - 0.08),
+                rect_width,
+                0.16,
+                facecolor=color,
+                edgecolor="none",
+            )
+            ax.add_patch(rect)
+            
+            # Label text
+            ax.text(
+                x, y_label,
+                label,
+                fontsize=self.theme.tick_font_size,
+                color=self.theme.text_color,
+                fontfamily=self.theme.font_family,
+                ha="center",
+                va="center",
+            )
+            
+            # Value and/or percentage
+            value_text_parts = []
+            if show_value:
+                value_text_parts.append(f"{value:,.0f}" if isinstance(value, (int, float)) else str(value))
+            if show_percent:
+                value_text_parts.append(f"{pct:.1f}%")
+            
+            if value_text_parts:
+                ax.text(
+                    x, y_value,
+                    " | ".join(value_text_parts),
+                    fontsize=self.theme.tick_font_size,
+                    color=self.theme.text_color,
+                    fontfamily=self.theme.font_family,
+                    ha="center",
+                    va="center",
+                )
+        
+        # Set axis limits
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
 

@@ -520,8 +520,14 @@ async def demo_gallery() -> None:
                 data = pie_infographic_data
             elif style == "transparent_donut":
                 data = pie_transparent_data
+            elif style in ["table_legend", "table_legend_donut"]:
+                data = pie_data  # Standard data works for table legend styles
             else:
                 data = pie_data
+            
+            # Determine title for different styles
+            no_title_styles = ["annotated", "transparent_donut"]
+            chart_title = f"Pie Chart ({style})" if style not in no_title_styles else None
             
             filename = f"gallery/pie_{style}_{theme}"
             try:
@@ -530,7 +536,7 @@ async def demo_gallery() -> None:
                     data=data,
                     style=style,
                     theme=theme,
-                    title=f"Pie Chart ({style})" if style not in ["annotated", "transparent_donut"] else None,
+                    title=chart_title,
                     filename=filename,
                 )
                 print(f"  [OK] {filename}.png")
