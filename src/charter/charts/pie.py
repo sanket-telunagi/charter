@@ -607,8 +607,8 @@ class PieChart(BaseChart):
         position: str = "right",
     ) -> None:
         """
-        Render the table legend with color indicators, labels, values, and percentages.
-        Center-aligned both vertically and horizontally.
+        Render the table legend with visible borders, color indicators, labels, values, and percentages.
+        Compact and center-aligned both vertically and horizontally.
         
         Args:
             ax: matplotlib Axes for the legend
@@ -632,31 +632,74 @@ class PieChart(BaseChart):
             self._render_legend_table_horizontal(ax, labels, values, colors, total)
             return
         
-        # Vertical layout (right or left) - CENTER ALIGNED
-        # Calculate row dimensions
-        row_height = min(0.1, 0.7 / max(n_rows, 1))
+        # Compact table dimensions
+        row_height = min(0.08, 0.65 / max(n_rows, 1))
         
-        # Calculate total table height for vertical centering
+        # Calculate total table dimensions
         header_offset = 1 if show_header else 0
         total_rows = n_rows + header_offset
         total_table_height = total_rows * row_height
         
-        # Center vertically: start_y is the top of the first row
-        start_y = 0.5 + (total_table_height / 2) - (row_height / 2)
+        # Table boundaries (centered)
+        table_width = 0.85
+        table_left = (1.0 - table_width) / 2
+        table_right = table_left + table_width
+        table_top = 0.5 + (total_table_height / 2)
+        table_bottom = 0.5 - (total_table_height / 2)
         
-        # Define column positions (centered horizontally with padding)
-        # Table content spans from 0.08 to 0.92 (84% width, centered)
-        table_left = 0.08
-        col_color = table_left
-        col_label = table_left + 0.1
-        col_value = 0.72 if show_percent else 0.88
-        col_percent = 0.92
+        # Border color (use theme grid color or a subtle gray)
+        border_color = self.theme.grid_color if hasattr(self.theme, 'grid_color') else "#555555"
+        border_width = 1.0
+        
+        # Column positions within table
+        col_color_x = table_left + 0.02
+        col_label_x = table_left + 0.12
+        col_value_x = table_right - 0.22 if show_percent else table_right - 0.05
+        col_percent_x = table_right - 0.03
+        
+        # Draw outer table border
+        outer_border = Rectangle(
+            (table_left, table_bottom),
+            table_width,
+            total_table_height,
+            fill=False,
+            edgecolor=border_color,
+            linewidth=border_width * 1.5,
+        )
+        ax.add_patch(outer_border)
+        
+        # Draw horizontal lines (row separators)
+        for i in range(total_rows + 1):
+            y_line = table_top - (i * row_height)
+            ax.plot(
+                [table_left, table_right],
+                [y_line, y_line],
+                color=border_color,
+                linewidth=border_width,
+                solid_capstyle="butt",
+            )
+        
+        # Draw vertical lines (column separators)
+        # Color column separator
+        col_sep_1 = table_left + 0.10
+        ax.plot([col_sep_1, col_sep_1], [table_bottom, table_top], color=border_color, linewidth=border_width)
+        
+        # Value column separator (if showing value)
+        if show_value:
+            col_sep_2 = col_value_x - 0.03
+            ax.plot([col_sep_2, col_sep_2], [table_bottom, table_top], color=border_color, linewidth=border_width)
+        
+        # Percent column separator (if showing both value and percent)
+        if show_value and show_percent:
+            col_sep_3 = col_percent_x - 0.06
+            ax.plot([col_sep_3, col_sep_3], [table_bottom, table_top], color=border_color, linewidth=border_width)
         
         # Add headers if enabled
+        row_idx = 0
         if show_header:
-            header_y = start_y + row_height
+            header_y = table_top - (row_height / 2)
             ax.text(
-                col_label, header_y, "Category",
+                col_label_x, header_y, "Category",
                 fontsize=self.theme.tick_font_size,
                 fontweight="bold",
                 color=self.theme.text_color,
@@ -665,7 +708,7 @@ class PieChart(BaseChart):
             )
             if show_value:
                 ax.text(
-                    col_value, header_y, "Value",
+                    col_value_x, header_y, "Value",
                     fontsize=self.theme.tick_font_size,
                     fontweight="bold",
                     color=self.theme.text_color,
@@ -675,7 +718,7 @@ class PieChart(BaseChart):
                 )
             if show_percent:
                 ax.text(
-                    col_percent, header_y, "%",
+                    col_percent_x, header_y, "%",
                     fontsize=self.theme.tick_font_size,
                     fontweight="bold",
                     color=self.theme.text_color,
@@ -683,28 +726,28 @@ class PieChart(BaseChart):
                     ha="right",
                     va="center",
                 )
-            # Move data rows down after header
-            start_y = start_y - row_height * 0.3
+            row_idx = 1
         
-        # Render each row (centered vertically)
+        # Render each data row
         for i, (label, value, color) in enumerate(zip(labels, values, colors)):
-            y = start_y - (i * row_height)
+            y = table_top - ((row_idx + i) * row_height) - (row_height / 2)
             pct = (value / total) * 100 if total > 0 else 0
             
-            # Color indicator (small square, centered vertically on the row)
-            rect_size = row_height * 0.5
+            # Color indicator (small square)
+            rect_size = row_height * 0.55
             rect = Rectangle(
-                (col_color, y - rect_size / 2),
-                rect_size * 1.2,
+                (col_color_x, y - rect_size / 2),
+                rect_size,
                 rect_size,
                 facecolor=color,
-                edgecolor="none",
+                edgecolor=border_color,
+                linewidth=0.5,
             )
             ax.add_patch(rect)
             
             # Label text
             ax.text(
-                col_label, y,
+                col_label_x, y,
                 label,
                 fontsize=self.theme.label_font_size,
                 color=self.theme.text_color,
@@ -715,7 +758,7 @@ class PieChart(BaseChart):
             # Value (right-aligned)
             if show_value:
                 ax.text(
-                    col_value, y,
+                    col_value_x, y,
                     f"{value:,.0f}" if isinstance(value, (int, float)) else str(value),
                     fontsize=self.theme.label_font_size,
                     color=self.theme.text_color,
@@ -727,7 +770,7 @@ class PieChart(BaseChart):
             # Percentage (right-aligned)
             if show_percent:
                 ax.text(
-                    col_percent, y,
+                    col_percent_x, y,
                     f"{pct:.1f}%",
                     fontsize=self.theme.label_font_size,
                     color=self.theme.text_color,

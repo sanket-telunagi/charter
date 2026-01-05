@@ -198,7 +198,30 @@ await generate_chart(
 
 #### Table Legend Style (Side Legend with Values)
 
-Displays the pie/donut chart on the left with a centered table legend on the right showing color indicators, labels, values, and percentages.
+Displays the pie/donut chart on the left with a compact, bordered table legend on the right showing color indicators, labels, values, and percentages.
+
+**Visual Layout:**
+
+```
++---------------------------+-------------------------------------------+
+|                           | +-------+----------+-------+---------+   |
+|                           | | [*]   | Desktop  |    42 |  42.0%  |   |
+|       PIE / DONUT         | |-------|----------|-------|---------|   |
+|                           | | [*]   | Mobile   |    35 |  35.0%  |   |
+|      (center title        | |-------|----------|-------|---------|   |
+|       for donut)          | | [*]   | Tablet   |    18 |  18.0%  |   |
+|                           | |-------|----------|-------|---------|   |
+|                           | | [*]   | Other    |     5 |   5.0%  |   |
+|                           | +-------+----------+-------+---------+   |
++---------------------------+-------------------------------------------+
+```
+
+**Features:**
+- Visible outer border and row/column separators
+- Compact, centered table layout
+- Color indicator squares with borders
+- Configurable columns (value, percentage)
+- Center title with background box for donut variant
 
 ```python
 # Regular pie with table legend
@@ -224,10 +247,14 @@ await generate_chart(
 )
 ```
 
-The table legend position is configurable via style options:
-- `table_legend_position`: `"right"` (default), `"left"`, or `"bottom"`
-- `table_legend_show_value`: Show/hide value column
-- `table_legend_show_percent`: Show/hide percentage column
+**Configuration Options:**
+
+| Option | Values | Description |
+|--------|--------|-------------|
+| `table_legend_position` | `"right"`, `"left"`, `"bottom"` | Position of table legend |
+| `table_legend_show_value` | `True`, `False` | Show/hide value column |
+| `table_legend_show_percent` | `True`, `False` | Show/hide percentage column |
+| `table_legend_header` | `True`, `False` | Show/hide column headers |
 
 #### Pie Styles
 
