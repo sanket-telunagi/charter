@@ -198,17 +198,36 @@ await generate_chart(
 
 #### Table Legend Style (Side Legend with Values)
 
+Displays the pie/donut chart on the left with a centered table legend on the right showing color indicators, labels, values, and percentages.
+
 ```python
+# Regular pie with table legend
 await generate_chart(
     chart_type="pie",
     data={
         "labels": ["Desktop", "Mobile", "Tablet", "Other"],
         "values": [42, 35, 18, 5],
     },
-    style="table_legend",  # Or "table_legend_donut" for donut variant
+    style="table_legend",
     title="Traffic by Device",
 )
+
+# Donut with center title and table legend
+await generate_chart(
+    chart_type="pie",
+    data={
+        "labels": ["Desktop", "Mobile", "Tablet", "Other"],
+        "values": [42, 35, 18, 5],
+    },
+    style="table_legend_donut",
+    title="Device Share",  # Shows in center of donut with background box
+)
 ```
+
+The table legend position is configurable via style options:
+- `table_legend_position`: `"right"` (default), `"left"`, or `"bottom"`
+- `table_legend_show_value`: Show/hide value column
+- `table_legend_show_percent`: Show/hide percentage column
 
 #### Pie Styles
 
@@ -223,8 +242,8 @@ await generate_chart(
 | `infographic` | External labels with leader lines |
 | `annotated` | Annotation-based labels with rounded boxes, custom colors, gaps, center title |
 | `transparent_donut` | Donut with transparent background and center title with rounded box |
-| `table_legend` | Pie chart with table legend on the side showing labels, values, and percentages |
-| `table_legend_donut` | Donut chart with table legend on the side |
+| `table_legend` | Pie chart with centered table legend on the side showing labels, values, and percentages |
+| `table_legend_donut` | Donut chart with center title (with background box) and centered table legend on the side |
 
 ---
 

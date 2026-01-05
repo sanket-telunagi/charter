@@ -522,13 +522,13 @@ class PieChart(BaseChart):
         position = self.style.table_legend_position
         
         if position == "right":
-            fig = plt.figure(figsize=(figsize[0] * 1.4, figsize[1]))
-            gs = GridSpec(1, 2, width_ratios=[3, 2], wspace=0.1)
+            fig = plt.figure(figsize=(figsize[0] * 1.5, figsize[1]))
+            gs = GridSpec(1, 2, width_ratios=[1.2, 1], wspace=0.05)
             ax_pie = fig.add_subplot(gs[0])
             ax_legend = fig.add_subplot(gs[1])
         elif position == "left":
-            fig = plt.figure(figsize=(figsize[0] * 1.4, figsize[1]))
-            gs = GridSpec(1, 2, width_ratios=[2, 3], wspace=0.1)
+            fig = plt.figure(figsize=(figsize[0] * 1.5, figsize[1]))
+            gs = GridSpec(1, 2, width_ratios=[1, 1.2], wspace=0.05)
             ax_legend = fig.add_subplot(gs[0])
             ax_pie = fig.add_subplot(gs[1])
         else:  # bottom
@@ -554,21 +554,36 @@ class PieChart(BaseChart):
             shadow=self.style.shadow,
             wedgeprops={
                 "width": donut_width,
-                "linewidth": 1.5,
+                "linewidth": 2,
                 "edgecolor": self.theme.background_color,
             },
         )
         
-        # Handle donut style with center hole for non-wedgeprops approach
-        # (wedgeprops width handles this automatically)
-        
         ax_pie.set_aspect("equal")
         
-        # Render table legend
+        # Add center title for donut charts
+        if self.style.donut and self.style.center_title:
+            center_text = self.data.get("center_title") or self.title or ""
+            if center_text:
+                if self.style.center_title_bbox:
+                    self._add_center_title_with_box(ax_pie, center_text)
+                else:
+                    ax_pie.text(
+                        0, 0,
+                        center_text,
+                        ha="center",
+                        va="center",
+                        fontsize=self.theme.title_font_size,
+                        fontweight="bold",
+                        color=self.theme.text_color,
+                        fontfamily=self.theme.font_family,
+                    )
+        
+        # Render table legend (centered)
         self._render_legend_table(ax_legend, labels, values, colors, position)
         
-        # Add title if provided
-        if self.title:
+        # Add figure title only if not using center title for donut
+        if self.title and not (self.style.donut and self.style.center_title):
             fig.suptitle(
                 self.title,
                 fontsize=self.theme.title_font_size,
@@ -579,7 +594,7 @@ class PieChart(BaseChart):
             )
         
         # Adjust spacing (tight_layout doesn't work well with GridSpec)
-        plt.subplots_adjust(left=0.05, right=0.95, top=0.92, bottom=0.05)
+        plt.subplots_adjust(left=0.02, right=0.98, top=0.95, bottom=0.05)
         
         return fig
     
@@ -593,6 +608,7 @@ class PieChart(BaseChart):
     ) -> None:
         """
         Render the table legend with color indicators, labels, values, and percentages.
+        Center-aligned both vertically and horizontally.
         
         Args:
             ax: matplotlib Axes for the legend
@@ -616,18 +632,25 @@ class PieChart(BaseChart):
             self._render_legend_table_horizontal(ax, labels, values, colors, total)
             return
         
-        # Vertical layout (right or left)
-        # Define column positions
-        col_color = 0.02
-        col_label = 0.12
-        col_value = 0.75 if show_percent else 0.9
-        col_percent = 0.95
+        # Vertical layout (right or left) - CENTER ALIGNED
+        # Calculate row dimensions
+        row_height = min(0.1, 0.7 / max(n_rows, 1))
         
-        # Calculate row height based on number of items
+        # Calculate total table height for vertical centering
         header_offset = 1 if show_header else 0
         total_rows = n_rows + header_offset
-        row_height = min(0.12, 0.9 / total_rows)
-        start_y = 0.95 - (0.1 if show_header else 0.05)
+        total_table_height = total_rows * row_height
+        
+        # Center vertically: start_y is the top of the first row
+        start_y = 0.5 + (total_table_height / 2) - (row_height / 2)
+        
+        # Define column positions (centered horizontally with padding)
+        # Table content spans from 0.08 to 0.92 (84% width, centered)
+        table_left = 0.08
+        col_color = table_left
+        col_label = table_left + 0.1
+        col_value = 0.72 if show_percent else 0.88
+        col_percent = 0.92
         
         # Add headers if enabled
         if show_header:
@@ -660,17 +683,20 @@ class PieChart(BaseChart):
                     ha="right",
                     va="center",
                 )
+            # Move data rows down after header
+            start_y = start_y - row_height * 0.3
         
-        # Render each row
+        # Render each row (centered vertically)
         for i, (label, value, color) in enumerate(zip(labels, values, colors)):
             y = start_y - (i * row_height)
             pct = (value / total) * 100 if total > 0 else 0
             
-            # Color indicator (small rectangle)
+            # Color indicator (small square, centered vertically on the row)
+            rect_size = row_height * 0.5
             rect = Rectangle(
-                (col_color, y - row_height * 0.3),
-                0.06,
-                row_height * 0.6,
+                (col_color, y - rect_size / 2),
+                rect_size * 1.2,
+                rect_size,
                 facecolor=color,
                 edgecolor="none",
             )
