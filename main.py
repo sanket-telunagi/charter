@@ -403,6 +403,299 @@ async def demo() -> None:
     print("Demo complete! Check the output directory for generated charts.")
 
 
+async def demo_gallery() -> None:
+    """Generate complete gallery of all styles and themes."""
+    print("Charter Gallery - Generating all style/theme combinations...")
+    print("=" * 60)
+    
+    # Create gallery output directory
+    gallery_dir = Path("output/gallery")
+    gallery_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Output directory: {gallery_dir.absolute()}")
+    print()
+    
+    # Get style registry
+    registry = get_style_registry()
+    
+    # =========================================================================
+    # Sample Data Sets
+    # =========================================================================
+    
+    # Bar chart data
+    bar_single_data = {
+        "labels": ["Jan", "Feb", "Mar", "Apr"],
+        "values": [65, 78, 52, 91],
+    }
+    bar_multi_data = {
+        "labels": ["Q1", "Q2", "Q3", "Q4"],
+        "series": {
+            "2023": [45, 52, 48, 61],
+            "2024": [51, 58, 55, 68],
+        },
+    }
+    
+    # Pie chart data
+    pie_data = {
+        "labels": ["Desktop", "Mobile", "Tablet", "Other"],
+        "values": [42, 35, 18, 5],
+    }
+    pie_annotated_data = {
+        "labels": ["Desktop, 42%", "Mobile, 35%", "Tablet, 18%", "Other, 5%"],
+        "values": [42, 35, 18, 5],
+        "center_title": "DEVICE\nSHARE",
+    }
+    pie_infographic_data = {
+        "labels": ["Desktop", "Mobile", "Tablet", "Other"],
+        "values": [42, 35, 18, 5],
+        "subtitle": "Traffic distribution by device type",
+    }
+    pie_transparent_data = {
+        "labels": ["Desktop, 42%", "Mobile, 35%", "Tablet, 18%", "Other, 5%"],
+        "values": [42, 35, 18, 5],
+        "center_title": "DEVICE\nSHARE",
+    }
+    
+    # Line chart data
+    line_data = {
+        "labels": ["Mon", "Tue", "Wed", "Thu", "Fri"],
+        "series": {
+            "Sales": [120, 150, 135, 180, 165],
+            "Returns": [15, 22, 18, 25, 20],
+        },
+    }
+    
+    # Time series data
+    ts_dates = [datetime(2024, 1, i) for i in range(1, 15)]
+    ts_data = {
+        "dates": ts_dates,
+        "values": [100, 105, 102, 110, 108, 115, 112, 120, 118, 125, 122, 130, 128, 135],
+    }
+    ts_range_data = {
+        "dates": ts_dates,
+        "values": [100, 105, 102, 110, 108, 115, 112, 120, 118, 125, 122, 130, 128, 135],
+        "upper": [110, 115, 112, 120, 118, 125, 122, 130, 128, 135, 132, 140, 138, 145],
+        "lower": [90, 95, 92, 100, 98, 105, 102, 110, 108, 115, 112, 120, 118, 125],
+    }
+    
+    # =========================================================================
+    # Bar Chart Gallery
+    # =========================================================================
+    print("Generating Bar Chart Gallery...")
+    bar_styles = registry.list_styles().get("bar", [])
+    
+    for theme in AVAILABLE_THEMES:
+        for style in bar_styles:
+            # Use multi data for grouped/stacked styles
+            if style in ["grouped", "stacked"]:
+                data = bar_multi_data
+            else:
+                data = bar_single_data
+            
+            filename = f"gallery/bar_{style}_{theme}"
+            try:
+                path = await generate_chart(
+                    chart_type="bar",
+                    data=data,
+                    style=style,
+                    theme=theme,
+                    title=f"Bar Chart ({style})",
+                    filename=filename,
+                )
+                print(f"  [OK] {filename}.png")
+            except Exception as e:
+                print(f"  [ERROR] {filename}.png - Error: {e}")
+    
+    # =========================================================================
+    # Pie Chart Gallery
+    # =========================================================================
+    print("\nGenerating Pie Chart Gallery...")
+    pie_styles = registry.list_styles().get("pie", [])
+    
+    for theme in AVAILABLE_THEMES:
+        for style in pie_styles:
+            # Use appropriate data for special styles
+            if style == "annotated":
+                data = pie_annotated_data
+            elif style == "infographic":
+                data = pie_infographic_data
+            elif style == "transparent_donut":
+                data = pie_transparent_data
+            else:
+                data = pie_data
+            
+            filename = f"gallery/pie_{style}_{theme}"
+            try:
+                path = await generate_chart(
+                    chart_type="pie",
+                    data=data,
+                    style=style,
+                    theme=theme,
+                    title=f"Pie Chart ({style})" if style not in ["annotated", "transparent_donut"] else None,
+                    filename=filename,
+                )
+                print(f"  [OK] {filename}.png")
+            except Exception as e:
+                print(f"  [ERROR] {filename}.png - Error: {e}")
+    
+    # =========================================================================
+    # Line Chart Gallery
+    # =========================================================================
+    print("\nGenerating Line Chart Gallery...")
+    line_styles = registry.list_styles().get("line", [])
+    
+    for theme in AVAILABLE_THEMES:
+        for style in line_styles:
+            filename = f"gallery/line_{style}_{theme}"
+            try:
+                path = await generate_chart(
+                    chart_type="line",
+                    data=line_data,
+                    style=style,
+                    theme=theme,
+                    title=f"Line Chart ({style})",
+                    filename=filename,
+                )
+                print(f"  [OK] {filename}.png")
+            except Exception as e:
+                print(f"  [ERROR] {filename}.png - Error: {e}")
+    
+    # =========================================================================
+    # Time Series Chart Gallery
+    # =========================================================================
+    print("\nGenerating Time Series Chart Gallery...")
+    ts_styles = registry.list_styles().get("timeseries", [])
+    
+    for theme in AVAILABLE_THEMES:
+        for style in ts_styles:
+            # Skip large_dataset style in gallery (too slow)
+            if style == "large_dataset":
+                continue
+            
+            # Use range data for range style
+            if style == "range":
+                data = ts_range_data
+            else:
+                data = ts_data
+            
+            filename = f"gallery/timeseries_{style}_{theme}"
+            try:
+                path = await generate_chart(
+                    chart_type="timeseries",
+                    data=data,
+                    style=style,
+                    theme=theme,
+                    title=f"Time Series ({style})",
+                    filename=filename,
+                )
+                print(f"  [OK] {filename}.png")
+            except Exception as e:
+                print(f"  [ERROR] {filename}.png - Error: {e}")
+    
+    # =========================================================================
+    # Dashboard Gallery
+    # =========================================================================
+    print("\nGenerating Dashboard Gallery...")
+    
+    # Traffic + Latency Dashboard
+    n_dashboard_points = 60
+    dashboard_start = datetime(2024, 1, 1, 10, 0)
+    dashboard_dates = [dashboard_start + timedelta(minutes=i) for i in range(n_dashboard_points)]
+    t_dash = np.arange(n_dashboard_points)
+    base_traffic = 50 + 5 * np.sin(2 * np.pi * t_dash / 30)
+    primary_traffic = base_traffic + np.random.normal(0, 3, n_dashboard_points) + 10
+    secondary_traffic = base_traffic + np.random.normal(0, 2, n_dashboard_points)
+    
+    for theme in ["plotly_dark", "dark", "default"]:
+        filename = f"gallery/dashboard_traffic_{theme}"
+        try:
+            path = await generate_dashboard(
+                panels=[
+                    {
+                        "chart_type": "timeseries",
+                        "data": {
+                            "dates": dashboard_dates,
+                            "series": {
+                                "Secondary": secondary_traffic.tolist(),
+                                "Primary": primary_traffic.tolist(),
+                            },
+                        },
+                        "title": "Traffic Volume",
+                        "col": 0,
+                    },
+                    {
+                        "chart_type": "bar",
+                        "data": {
+                            "labels": ["10:00", "10:20", "10:40", "11:00"],
+                            "values": [91, 92, 93, 92],
+                        },
+                        "title": "Latency (ms)",
+                        "col": 1,
+                    },
+                ],
+                layout={"cols": 2, "width_ratios": [2.5, 1], "figsize": [16, 5]},
+                theme=theme,
+                filename=filename,
+            )
+            print(f"  [OK] {filename}.png")
+        except Exception as e:
+            print(f"  [ERROR] {filename}.png - Error: {e}")
+    
+    # 2x2 Grid Dashboard
+    for theme in ["plotly_dark", "dark", "default"]:
+        filename = f"gallery/dashboard_grid_{theme}"
+        try:
+            path = await generate_dashboard(
+                panels=[
+                    {
+                        "chart_type": "bar",
+                        "data": {"labels": ["Mon", "Tue", "Wed", "Thu", "Fri"], "values": [120, 150, 135, 180, 165]},
+                        "title": "Daily Orders",
+                        "row": 0, "col": 0,
+                    },
+                    {
+                        "chart_type": "line",
+                        "data": {"labels": ["W1", "W2", "W3", "W4"], "series": {"Revenue": [1200, 1350, 1280, 1500], "Costs": [800, 850, 820, 900]}},
+                        "style": "smooth",
+                        "title": "Financials",
+                        "row": 0, "col": 1,
+                    },
+                    {
+                        "chart_type": "timeseries",
+                        "data": {"dates": [datetime(2024, 1, i) for i in range(1, 8)], "values": [45, 52, 48, 61, 55, 58, 62]},
+                        "style": "area",
+                        "title": "Active Users",
+                        "row": 1, "col": 0,
+                    },
+                    {
+                        "chart_type": "bar",
+                        "data": {"labels": ["A", "B", "C"], "series": {"Q1": [30, 45, 28], "Q2": [35, 50, 32]}},
+                        "style": "grouped",
+                        "title": "Product Sales",
+                        "row": 1, "col": 1,
+                    },
+                ],
+                layout={"rows": 2, "cols": 2, "figsize": [14, 10]},
+                theme=theme,
+                title="Business Metrics",
+                filename=filename,
+            )
+            print(f"  [OK] {filename}.png")
+        except Exception as e:
+            print(f"  [ERROR] {filename}.png - Error: {e}")
+    
+    # =========================================================================
+    # Summary
+    # =========================================================================
+    print()
+    print("=" * 60)
+    print("Gallery generation complete!")
+    print(f"Output directory: {gallery_dir.absolute()}")
+    
+    # Count generated files
+    generated = list(gallery_dir.glob("*.png"))
+    print(f"Total images generated: {len(generated)}")
+
+
 async def generate_from_cli(args: argparse.Namespace) -> None:
     """Generate a chart from CLI arguments."""
     try:
@@ -436,11 +729,17 @@ Examples:
   python main.py
     Run demo with sample charts
     
+  python main.py gallery
+    Generate complete gallery of all styles and themes
+    
   python main.py bar --data '{"labels": ["A", "B", "C"], "values": [1, 2, 3]}'
     Generate a bar chart
     
   python main.py pie --data '{"labels": ["X", "Y"], "values": [60, 40]}' --style donut --theme dark
     Generate a donut chart with dark theme
+    
+  python main.py list
+    List all available themes and styles
         """,
     )
     
@@ -506,6 +805,9 @@ Examples:
     # List command
     list_parser = subparsers.add_parser("list", help="List available themes and styles")
     
+    # Gallery command
+    gallery_parser = subparsers.add_parser("gallery", help="Generate complete gallery of all styles and themes")
+    
     args = parser.parse_args()
     
     if args.type == "list":
@@ -519,6 +821,8 @@ Examples:
             print(f"  {chart_type}:")
             for style in styles:
                 print(f"    - {style}")
+    elif args.type == "gallery":
+        asyncio.run(demo_gallery())
     elif args.type:
         asyncio.run(generate_from_cli(args))
     else:

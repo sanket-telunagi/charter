@@ -98,6 +98,11 @@ class PieStyle(Style):
         label_bbox_facecolor: Background color for label bbox
         label_bbox_edgecolor: Border color for label bbox
         label_bbox_alpha: Transparency for label bbox
+        transparent_background: Whether to use fully transparent figure background
+        center_title_bbox: Whether to show background box behind center title
+        center_title_bbox_facecolor: Background color for center title box
+        center_title_bbox_alpha: Transparency for center title box
+        center_title_bbox_pad: Padding for center title box
     """
     chart_type: ChartType = ChartType.PIE
     donut: bool = False
@@ -122,6 +127,12 @@ class PieStyle(Style):
     label_bbox_facecolor: str = "white"
     label_bbox_edgecolor: str = "#dddddd"
     label_bbox_alpha: float = 0.85
+    # Transparent donut style options
+    transparent_background: bool = False
+    center_title_bbox: bool = False
+    center_title_bbox_facecolor: str = "#333333"
+    center_title_bbox_alpha: float = 0.85
+    center_title_bbox_pad: float = 0.5
 
 
 # Built-in pie styles
@@ -153,6 +164,28 @@ PIE_STYLES: dict[str, PieStyle] = {
         show_labels=False,
         start_angle=90.0,
         counter_clockwise=False,
+    ),
+    "transparent_donut": PieStyle(
+        name="transparent_donut",
+        donut=True,
+        donut_ratio=0.55,
+        center_title=True,
+        center_title_bbox=True,
+        center_title_bbox_facecolor="#444444",
+        center_title_bbox_alpha=0.9,
+        center_title_bbox_pad=0.5,
+        use_annotate=True,
+        label_bbox=True,
+        label_bbox_style="round,pad=0.3",
+        label_bbox_facecolor="#444444",
+        label_bbox_edgecolor="none",
+        label_bbox_alpha=0.9,
+        show_percentages=False,
+        show_labels=False,
+        start_angle=90.0,
+        counter_clockwise=False,
+        transparent_background=True,
+        leader_line_color="#777777",
     ),
 }
 

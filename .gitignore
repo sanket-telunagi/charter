@@ -15,3 +15,5 @@ wheels/
 # Output directory contents (keep directory, ignore files)
 # output/*
 !output/.gitkeep
+
+previous_chats/*

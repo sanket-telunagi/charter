@@ -190,11 +190,21 @@ class PieChart(BaseChart):
         
         # Apply theme to figure
         self.theme.apply_to_figure(fig)
-        ax.set_facecolor(self.theme.background_color)
+        
+        # Handle transparent background
+        if self.style.transparent_background:
+            fig.patch.set_alpha(0.0)
+            ax.set_facecolor("none")
+            ax.patch.set_alpha(0.0)
+        else:
+            ax.set_facecolor(self.theme.background_color)
         
         # Calculate donut width (ring thickness)
         # donut_ratio is the inner radius ratio, so width = 1 - inner_ratio
         donut_width = 1 - self.style.donut_ratio if self.style.donut else 1
+        
+        # For transparent background, use transparent edge color
+        edge_color = "none" if self.style.transparent_background else self.theme.background_color
         
         # Create pie/donut chart using wedgeprops width approach
         wedges, _ = ax.pie(
@@ -204,7 +214,7 @@ class PieChart(BaseChart):
             counterclock=self.style.counter_clockwise,
             wedgeprops={
                 "width": donut_width,
-                "edgecolor": self.theme.background_color,
+                "edgecolor": edge_color,
                 "linewidth": 1.5,
             },
         )
@@ -214,16 +224,19 @@ class PieChart(BaseChart):
         
         # Add center title if enabled and provided
         if self.style.center_title and center_title:
-            ax.text(
-                0, 0,
-                center_title,
-                ha="center",
-                va="center",
-                fontsize=self.theme.title_font_size,
-                fontweight="bold",
-                color=self.theme.text_color,
-                fontfamily=self.theme.font_family,
-            )
+            if self.style.center_title_bbox:
+                self._add_center_title_with_box(ax, center_title)
+            else:
+                ax.text(
+                    0, 0,
+                    center_title,
+                    ha="center",
+                    va="center",
+                    fontsize=self.theme.title_font_size,
+                    fontweight="bold",
+                    color=self.theme.text_color,
+                    fontfamily=self.theme.font_family,
+                )
         
         # Add main title at top if provided
         if self.title:
@@ -239,13 +252,51 @@ class PieChart(BaseChart):
         # Equal aspect ratio ensures circular pie
         ax.set_aspect("equal")
         
-        # Make figure and axes backgrounds transparent if needed
-        fig.patch.set_alpha(1.0)
-        ax.patch.set_alpha(1.0)
+        # Handle transparency settings for output
+        if self.style.transparent_background:
+            fig.patch.set_alpha(0.0)
+            ax.patch.set_alpha(0.0)
+        else:
+            fig.patch.set_alpha(1.0)
+            ax.patch.set_alpha(1.0)
         
         plt.tight_layout()
         
         return fig
+    
+    def _add_center_title_with_box(
+        self,
+        ax: plt.Axes,
+        center_title: str,
+    ) -> None:
+        """
+        Add center title with a rounded background box.
+        
+        Args:
+            ax: matplotlib Axes object
+            center_title: Text to display in center (supports newlines)
+        """
+        # Build bbox properties for the rounded background box
+        bbox_props = {
+            "boxstyle": f"round,pad={self.style.center_title_bbox_pad},rounding_size=0.3",
+            "facecolor": self.style.center_title_bbox_facecolor,
+            "edgecolor": "none",
+            "alpha": self.style.center_title_bbox_alpha,
+        }
+        
+        # Add the center title text with bbox
+        ax.text(
+            0, 0,
+            center_title,
+            ha="center",
+            va="center",
+            fontsize=self.theme.title_font_size,
+            fontweight="bold",
+            color=self.theme.text_color,
+            fontfamily=self.theme.font_family,
+            bbox=bbox_props,
+            zorder=10,
+        )
     
     def _add_annotated_labels(
         self,

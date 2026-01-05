@@ -791,6 +791,219 @@ asyncio.run(generate_dashboard())
 
 ---
 
+## Gallery
+
+Generate a complete gallery of all styles and themes:
+
+```bash
+python main.py gallery
+```
+
+This creates all style/theme combinations in `output/gallery/`.
+
+### Bar Chart Styles
+
+#### default
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/bar_default_default.png) | ![](output/gallery/bar_default_dark.png) | ![](output/gallery/bar_default_plotly_dark.png) |
+
+#### grouped
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/bar_grouped_default.png) | ![](output/gallery/bar_grouped_dark.png) | ![](output/gallery/bar_grouped_plotly_dark.png) |
+
+#### stacked
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/bar_stacked_default.png) | ![](output/gallery/bar_stacked_dark.png) | ![](output/gallery/bar_stacked_plotly_dark.png) |
+
+#### horizontal
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/bar_horizontal_default.png) | ![](output/gallery/bar_horizontal_dark.png) | ![](output/gallery/bar_horizontal_plotly_dark.png) |
+
+#### outlined
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/bar_outlined_default.png) | ![](output/gallery/bar_outlined_dark.png) | ![](output/gallery/bar_outlined_plotly_dark.png) |
+
+#### labeled
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/bar_labeled_default.png) | ![](output/gallery/bar_labeled_dark.png) | ![](output/gallery/bar_labeled_plotly_dark.png) |
+
+---
+
+### Pie Chart Styles
+
+#### default
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_default_default.png) | ![](output/gallery/pie_default_dark.png) | ![](output/gallery/pie_default_plotly_dark.png) |
+
+#### donut
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_donut_default.png) | ![](output/gallery/pie_donut_dark.png) | ![](output/gallery/pie_donut_plotly_dark.png) |
+
+#### exploded
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_exploded_default.png) | ![](output/gallery/pie_exploded_dark.png) | ![](output/gallery/pie_exploded_plotly_dark.png) |
+
+#### detailed
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_detailed_default.png) | ![](output/gallery/pie_detailed_dark.png) | ![](output/gallery/pie_detailed_plotly_dark.png) |
+
+#### shadow
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_shadow_default.png) | ![](output/gallery/pie_shadow_dark.png) | ![](output/gallery/pie_shadow_plotly_dark.png) |
+
+#### infographic
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_infographic_default.png) | ![](output/gallery/pie_infographic_dark.png) | ![](output/gallery/pie_infographic_plotly_dark.png) |
+
+#### annotated
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_annotated_default.png) | ![](output/gallery/pie_annotated_dark.png) | ![](output/gallery/pie_annotated_plotly_dark.png) |
+
+#### transparent_donut
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/pie_transparent_donut_default.png) | ![](output/gallery/pie_transparent_donut_dark.png) | ![](output/gallery/pie_transparent_donut_plotly_dark.png) |
+
+---
+
+### Line Chart Styles
+
+#### default
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/line_default_default.png) | ![](output/gallery/line_default_dark.png) | ![](output/gallery/line_default_plotly_dark.png) |
+
+#### smooth
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/line_smooth_default.png) | ![](output/gallery/line_smooth_dark.png) | ![](output/gallery/line_smooth_plotly_dark.png) |
+
+#### stepped
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/line_stepped_default.png) | ![](output/gallery/line_stepped_dark.png) | ![](output/gallery/line_stepped_plotly_dark.png) |
+
+#### area
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/line_area_default.png) | ![](output/gallery/line_area_dark.png) | ![](output/gallery/line_area_plotly_dark.png) |
+
+#### dotted
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/line_dotted_default.png) | ![](output/gallery/line_dotted_dark.png) | ![](output/gallery/line_dotted_plotly_dark.png) |
+
+#### dashed
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/line_dashed_default.png) | ![](output/gallery/line_dashed_dark.png) | ![](output/gallery/line_dashed_plotly_dark.png) |
+
+#### markers
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/line_markers_default.png) | ![](output/gallery/line_markers_dark.png) | ![](output/gallery/line_markers_plotly_dark.png) |
+
+---
+
+### Time Series Styles
+
+#### default
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/timeseries_default_default.png) | ![](output/gallery/timeseries_default_dark.png) | ![](output/gallery/timeseries_default_plotly_dark.png) |
+
+#### area
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/timeseries_area_default.png) | ![](output/gallery/timeseries_area_dark.png) | ![](output/gallery/timeseries_area_plotly_dark.png) |
+
+#### trend
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/timeseries_trend_default.png) | ![](output/gallery/timeseries_trend_dark.png) | ![](output/gallery/timeseries_trend_plotly_dark.png) |
+
+#### range
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/timeseries_range_default.png) | ![](output/gallery/timeseries_range_dark.png) | ![](output/gallery/timeseries_range_plotly_dark.png) |
+
+#### minimal
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/timeseries_minimal_default.png) | ![](output/gallery/timeseries_minimal_dark.png) | ![](output/gallery/timeseries_minimal_plotly_dark.png) |
+
+---
+
+### Dashboard Examples
+
+#### Traffic + Latency Dashboard
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/dashboard_traffic_default.png) | ![](output/gallery/dashboard_traffic_dark.png) | ![](output/gallery/dashboard_traffic_plotly_dark.png) |
+
+#### 2x2 Grid Dashboard
+
+| Default | Dark | Plotly Dark |
+|---------|------|-------------|
+| ![](output/gallery/dashboard_grid_default.png) | ![](output/gallery/dashboard_grid_dark.png) | ![](output/gallery/dashboard_grid_plotly_dark.png) |
+
+---
+
+### Theme Comparison
+
+The same bar chart rendered with all 6 themes:
+
+| Theme | Sample |
+|-------|--------|
+| default | ![](output/gallery/bar_default_default.png) |
+| dark | ![](output/gallery/bar_default_dark.png) |
+| light | ![](output/gallery/bar_default_light.png) |
+| minimal | ![](output/gallery/bar_default_minimal.png) |
+| vibrant | ![](output/gallery/bar_default_vibrant.png) |
+| plotly_dark | ![](output/gallery/bar_default_plotly_dark.png) |
+
+---
+
 ## License
 
 MIT License

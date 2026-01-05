@@ -144,12 +144,22 @@ class OutputManager:
             output_format: File format
             dpi: Resolution for raster formats
         """
+        # Check if figure has transparent background (alpha close to 0)
+        facecolor = figure.get_facecolor()
+        is_transparent = len(facecolor) == 4 and facecolor[3] < 0.01
+        
         save_kwargs = {
             "format": output_format,
             "bbox_inches": "tight",
-            "facecolor": figure.get_facecolor(),
             "edgecolor": "none",
         }
+        
+        # Handle transparency for PNG format
+        if is_transparent and output_format == "png":
+            save_kwargs["transparent"] = True
+            save_kwargs["facecolor"] = "none"
+        else:
+            save_kwargs["facecolor"] = facecolor
         
         # Add DPI for raster formats
         if output_format in ("png", "jpeg"):
