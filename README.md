@@ -968,6 +968,20 @@ This creates all style/theme combinations in `output/gallery/`.
 |---------|------|----------|
 | ![](output/gallery/rose_radius_default.png) | ![](output/gallery/rose_radius_dark.png) | ![](output/gallery/rose_radius_westeros.png) |
 
+#### ECharts-Inspired Themes (Radius Style)
+
+| Westeros | Wonderland | Chalk |
+|----------|------------|-------|
+| ![](output/gallery/rose_radius_westeros.png) | ![](output/gallery/rose_radius_wonderland.png) | ![](output/gallery/rose_radius_chalk.png) |
+
+| Essos | Macarons | Roma |
+|-------|----------|------|
+| ![](output/gallery/rose_radius_essos.png) | ![](output/gallery/rose_radius_macarons.png) | ![](output/gallery/rose_radius_roma.png) |
+
+| Walden | Purple Passion | Shine |
+|--------|----------------|-------|
+| ![](output/gallery/rose_radius_walden.png) | ![](output/gallery/rose_radius_purple_passion.png) | ![](output/gallery/rose_radius_shine.png) |
+
 #### area
 
 | Default | Dark | Wonderland |
