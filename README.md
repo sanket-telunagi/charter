@@ -5,8 +5,8 @@ A modular, async-first Python charting library built on matplotlib. Generate bea
 ## Features
 
 - **Async-first design** - Non-blocking chart generation using `asyncio`
-- **Multiple chart types** - Bar, Pie, Line, and Time Series charts
-- **Customizable themes** - 5 built-in themes with custom theme support
+- **Multiple chart types** - Bar, Pie, Line, Time Series, and Nightingale Rose charts
+- **Customizable themes** - 15 built-in themes including ECharts-inspired palettes
 - **Style presets** - Pre-configured styles for each chart type
 - **Multiple output formats** - PNG, SVG, PDF, JPEG
 - **Environment configuration** - Configure via environment variables or `.env` file
@@ -77,6 +77,9 @@ python main.py bar --data '{"labels": ["A", "B", "C"], "values": [10, 20, 15]}'
 
 # With options
 python main.py pie --data '{"labels": ["X", "Y"], "values": [60, 40]}' --style donut --theme dark
+
+# Generate a Nightingale Rose chart with Westeros theme
+python main.py rose --data '{"labels": ["A", "B", "C", "D"], "values": [10, 20, 30, 40]}' --theme westeros
 
 # List available themes and styles
 python main.py list
@@ -274,6 +277,50 @@ await generate_chart(
 
 ---
 
+### Nightingale Rose Charts
+
+Nightingale Rose charts (Coxcomb charts) are polar charts where each sector has the same angle but different radius.
+
+#### Basic Rose Chart
+
+```python
+await generate_chart(
+    chart_type="rose",
+    data={
+        "labels": ["A", "B", "C", "D", "E"],
+        "values": [10, 20, 30, 40, 50],
+    },
+    theme="westeros",
+    title="Rose Chart",
+)
+```
+
+#### Area Style (Square Root Scale)
+
+Use `style="area"` to make the area proportional to the value (radius proportional to square root of value), which is often perceptually more accurate.
+
+```python
+await generate_chart(
+    chart_type="rose",
+    data={
+        "labels": ["A", "B", "C", "D"],
+        "values": [10, 20, 30, 40],
+    },
+    style="area",
+    theme="wonderland",
+)
+```
+
+#### Rose Styles
+
+| Style | Description |
+|-------|-------------|
+| `default` | Standard radius-based rose chart (radius ~ value) |
+| `radius` | Same as default |
+| `area` | Area-based rose chart (area ~ value, radius ~ sqrt(value)) |
+
+---
+
 ### Line Charts
 
 Line charts support single and multi-series data with various styling options.
@@ -429,6 +476,16 @@ await generate_chart(
 }
 ```
 
+### Rose Chart Data
+
+```python
+# Same as basic pie chart data
+{
+    "labels": ["A", "B", "C", "D"],
+    "values": [10, 20, 30, 40]
+}
+```
+
 ### Line Chart Data
 
 ```python
@@ -485,7 +542,9 @@ await generate_chart(
 
 ## Themes
 
-Charter includes 5 built-in themes:
+Charter includes 15 built-in themes, including many inspired by ECharts:
+
+### Base Themes
 
 | Theme | Description |
 |-------|-------------|
@@ -494,6 +553,21 @@ Charter includes 5 built-in themes:
 | `light` | Bright, minimal appearance with Material colors |
 | `minimal` | Reduced visual elements, focus on data |
 | `vibrant` | Bold, saturated colors for impact |
+| `plotly_dark` | Plotly-inspired dark theme |
+
+### ECharts-Inspired Themes
+
+| Theme | Description |
+|-------|-------------|
+| `westeros` | Cool blues and purples, elegant feel |
+| `wonderland` | Fresh greens and pinks |
+| `chalk` | Chalk-style graphics on dark slate background |
+| `essos` | Warm reds and golds, creamy background |
+| `macarons` | Soft pastel colors, playful |
+| `roma` | Sophisticated red and grey palette |
+| `walden` | Forest and lake tones, calming |
+| `purple_passion` | Deep purple variations on dark background |
+| `shine` | Bright, glossy reds and yellows |
 
 ### Using Themes
 
@@ -501,7 +575,7 @@ Charter includes 5 built-in themes:
 await generate_chart(
     chart_type="bar",
     data={"labels": ["A", "B"], "values": [10, 20]},
-    theme="dark",  # Use dark theme
+    theme="westeros",  # Use westeros theme
 )
 ```
 
@@ -616,7 +690,7 @@ settings = reload_settings()
 
 ```python
 async def generate_chart(
-    chart_type: str,           # "bar", "pie", "line", "timeseries"
+    chart_type: str,           # "bar", "pie", "line", "timeseries", "rose"
     data: dict,                # Chart data (format depends on chart type)
     style: str = "default",    # Style preset name
     theme: str = None,         # Theme name (uses default if None)
@@ -638,6 +712,7 @@ await generate_bar_chart(data, style, theme, ...)
 await generate_pie_chart(data, style, theme, ...)
 await generate_line_chart(data, style, theme, ...)
 await generate_timeseries_chart(data, style, theme, ...)
+await generate_rose_chart(data, style, theme, ...)
 ```
 
 ### Imports
@@ -647,6 +722,7 @@ await generate_timeseries_chart(data, style, theme, ...)
 from charter import generate_chart
 from charter import generate_bar_chart, generate_pie_chart
 from charter import generate_line_chart, generate_timeseries_chart
+from charter import generate_rose_chart
 
 # Configuration
 from charter import get_settings, reload_settings, ChartSettings
@@ -656,7 +732,7 @@ from charter import get_theme, register_theme, AVAILABLE_THEMES, Theme
 
 # Styles
 from charter import get_style_registry
-from charter import Style, BarStyle, PieStyle, LineStyle, TimeSeriesStyle
+from charter import Style, BarStyle, PieStyle, LineStyle, TimeSeriesStyle, RoseStyle
 
 # Validation
 from charter import validate_chart_data, ChartDataError
@@ -667,16 +743,17 @@ from charter import validate_chart_data, ChartDataError
 ## CLI Reference
 
 ```
-usage: main.py [-h] {bar,pie,line,timeseries,list} ...
+usage: main.py [-h] {bar,pie,line,timeseries,rose,list} ...
 
 Charter - Generate beautiful charts from the command line
 
 positional arguments:
-  {bar,pie,line,timeseries,list}
+  {bar,pie,line,timeseries,rose,list}
     bar                 Generate a bar chart
     pie                 Generate a pie chart
     line                Generate a line chart
     timeseries          Generate a time series chart
+    rose                Generate a Nightingale rose chart
     list                List available themes and styles
 
 optional arguments:
@@ -716,6 +793,11 @@ python main.py line \
   --data '{"x": [1,2,3,4,5], "y": [2,4,6,8,10]}' \
   --output my_chart \
   --style smooth
+
+# Rose chart
+python main.py rose \
+  --data '{"labels": ["A", "B", "C"], "values": [10, 20, 30]}' \
+  --theme westeros
 ```
 
 ---
@@ -758,6 +840,7 @@ charter/
         │   ├── bar.py         # BarChart
         │   ├── pie.py         # PieChart
         │   ├── line.py        # LineChart
+        │   ├── rose.py        # RoseChart
         │   └── timeseries.py  # TimeSeriesChart
         ├── config/
         │   └── settings.py    # Configuration management
@@ -831,6 +914,19 @@ async def generate_dashboard():
         filename="user_growth",
     )
     
+    # Rose chart example
+    await generate_chart(
+        chart_type="rose",
+        data={
+            "labels": ["Biology", "Physics", "Chemistry", "Math", "History", "Arts"],
+            "values": [85, 90, 75, 95, 70, 80],
+        },
+        style="radius",
+        theme="westeros",
+        title="Student Performance",
+        filename="student_rose",
+    )
+    
     # Stock price time series
     await generate_chart(
         chart_type="timeseries",
@@ -863,6 +959,22 @@ python main.py gallery
 ```
 
 This creates all style/theme combinations in `output/gallery/`.
+
+### Rose Chart Styles
+
+#### radius
+
+| Default | Dark | Westeros |
+|---------|------|----------|
+| ![](output/gallery/rose_radius_default.png) | ![](output/gallery/rose_radius_dark.png) | ![](output/gallery/rose_radius_westeros.png) |
+
+#### area
+
+| Default | Dark | Wonderland |
+|---------|------|------------|
+| ![](output/gallery/rose_area_default.png) | ![](output/gallery/rose_area_dark.png) | ![](output/gallery/rose_area_wonderland.png) |
+
+---
 
 ### Bar Chart Styles
 
@@ -1086,4 +1198,3 @@ MIT License
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
