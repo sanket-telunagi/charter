@@ -16,6 +16,7 @@ class ChartType(str, Enum):
     PIE = "pie"
     LINE = "line"
     TIMESERIES = "timeseries"
+    ROSE = "rose"
 
 
 @dataclass(frozen=True)
@@ -222,6 +223,42 @@ PIE_STYLES: dict[str, PieStyle] = {
 
 
 # ============================================================================
+# Rose Chart Styles
+# ============================================================================
+
+@dataclass(frozen=True)
+class RoseStyle(Style):
+    """
+    Style configuration for Nightingale Rose charts.
+    
+    Attributes:
+        rose_type: 'radius' (Nightingale) or 'area' (area proportional)
+        start_angle: Starting angle in degrees
+        counter_clockwise: Direction of slices
+        show_labels: Whether to show labels
+        show_percentages: Whether to show percentages
+        label_distance: Distance of labels from center
+        alpha: Transparency of petals
+    """
+    chart_type: ChartType = ChartType.ROSE
+    rose_type: Literal["radius", "area"] = "radius"
+    start_angle: float = 90.0
+    counter_clockwise: bool = False
+    show_labels: bool = True
+    show_percentages: bool = True
+    label_distance: float = 1.1
+    alpha: float = 0.8
+
+
+# Built-in rose styles
+ROSE_STYLES: dict[str, RoseStyle] = {
+    "default": RoseStyle(name="default"),
+    "area": RoseStyle(name="area", rose_type="area"),
+    "radius": RoseStyle(name="radius", rose_type="radius"),
+}
+
+
+# ============================================================================
 # Line Chart Styles
 # ============================================================================
 
@@ -322,4 +359,3 @@ TIMESERIES_STYLES: dict[str, TimeSeriesStyle] = {
         date_format="%Y-%m-%d %H:%M",
     ),
 }
-

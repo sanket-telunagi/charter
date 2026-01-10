@@ -49,6 +49,7 @@ from charter.api import (
     generate_pie_chart,
     generate_line_chart,
     generate_timeseries_chart,
+    generate_rose_chart,
     generate_dashboard,
 )
 from charter.config.settings import get_settings, reload_settings, ChartSettings
@@ -61,6 +62,7 @@ from charter.styles.presets import (
     PieStyle,
     LineStyle,
     TimeSeriesStyle,
+    RoseStyle,
     ChartType,
 )
 from charter.styles.dashboard import (
@@ -81,6 +83,7 @@ __all__ = [
     "generate_pie_chart",
     "generate_line_chart",
     "generate_timeseries_chart",
+    "generate_rose_chart",
     "generate_dashboard",
     # Configuration
     "get_settings",
@@ -98,6 +101,7 @@ __all__ = [
     "PieStyle",
     "LineStyle",
     "TimeSeriesStyle",
+    "RoseStyle",
     "ChartType",
     # Dashboard
     "PanelConfig",

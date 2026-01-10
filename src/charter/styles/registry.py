@@ -12,10 +12,12 @@ from charter.styles.presets import (
     PieStyle,
     LineStyle,
     TimeSeriesStyle,
+    RoseStyle,
     BAR_STYLES,
     PIE_STYLES,
     LINE_STYLES,
     TIMESERIES_STYLES,
+    ROSE_STYLES,
 )
 
 
@@ -37,6 +39,7 @@ class StyleRegistry:
             ChartType.PIE: dict(PIE_STYLES),
             ChartType.LINE: dict(LINE_STYLES),
             ChartType.TIMESERIES: dict(TIMESERIES_STYLES),
+            ChartType.ROSE: dict(ROSE_STYLES),
         }
 
     def get_style(self, chart_type: ChartType | str, name: str = "default") -> Style:
@@ -98,6 +101,12 @@ class StyleRegistry:
         """Get a time series chart style."""
         style = self.get_style(ChartType.TIMESERIES, name)
         assert isinstance(style, TimeSeriesStyle)
+        return style
+
+    def get_rose_style(self, name: str = "default") -> RoseStyle:
+        """Get a rose chart style."""
+        style = self.get_style(ChartType.ROSE, name)
+        assert isinstance(style, RoseStyle)
         return style
 
     def register_style(self, style: Style) -> None:

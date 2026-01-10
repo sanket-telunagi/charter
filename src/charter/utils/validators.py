@@ -35,6 +35,7 @@ def validate_chart_data(
         "pie": validate_pie_data,
         "line": validate_line_data,
         "timeseries": validate_timeseries_data,
+        "rose": validate_rose_data,
     }
     
     validator = validators.get(chart_type.lower())
@@ -298,6 +299,49 @@ def validate_timeseries_data(data: dict[str, Any]) -> dict[str, Any]:
             _validate_numeric_sequence(values, f"series['{name}']")
     else:
         raise ChartDataError("Time series requires 'values' or 'series' field")
+    
+    return data
+
+
+def validate_rose_data(data: dict[str, Any]) -> dict[str, Any]:
+    """
+    Validate rose chart data.
+    
+    Expected formats:
+        Basic: {"labels": [...], "values": [...]}
+    """
+    if not isinstance(data, dict):
+        raise ChartDataError("Rose chart data must be a dictionary")
+    
+    # Check for labels
+    labels = data.get("labels")
+    if labels is None:
+        raise ChartDataError("Rose chart requires 'labels' field")
+    
+    if not isinstance(labels, (list, tuple)):
+        raise ChartDataError("'labels' must be a list or tuple")
+    
+    if len(labels) == 0:
+        raise ChartDataError("'labels' cannot be empty")
+    
+    # Check for values
+    values = data.get("values")
+    if values is None:
+        raise ChartDataError("Rose chart requires 'values' field")
+    
+    if not isinstance(values, (list, tuple)):
+        raise ChartDataError("'values' must be a list or tuple")
+    
+    if len(values) != len(labels):
+        raise ChartDataError(
+            f"'values' length ({len(values)}) must match 'labels' length ({len(labels)})"
+        )
+    
+    _validate_numeric_sequence(values, "values")
+    
+    # All values must be non-negative for rose charts
+    if any(v < 0 for v in values):
+        raise ChartDataError("Rose chart values must be non-negative")
     
     return data
 

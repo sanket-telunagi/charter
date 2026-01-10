@@ -399,6 +399,34 @@ async def demo() -> None:
     )
     print(f"   Saved: {grid_dashboard_path}")
 
+    # Demo rose chart
+    print("13. Generating rose chart...")
+    rose_path = await generate_chart(
+        chart_type="rose",
+        data={
+            "labels": ["Rose 1", "Rose 2", "Rose 3", "Rose 4", "Rose 5", "Rose 6", "Rose 7", "Rose 8"],
+            "values": [40, 38, 32, 30, 28, 26, 22, 18],
+        },
+        style="radius",
+        theme="westeros",
+        title="Nightingale Rose Chart",
+    )
+    print(f"   Saved: {rose_path}")
+    
+    # Demo rose chart with area style
+    print("14. Generating rose chart (area style)...")
+    rose_area_path = await generate_chart(
+        chart_type="rose",
+        data={
+            "labels": ["A", "B", "C", "D", "E", "F"],
+            "values": [10, 20, 30, 40, 50, 60],
+        },
+        style="area",
+        theme="wonderland",
+        title="Rose Chart (Area Proportional)",
+    )
+    print(f"   Saved: {rose_area_path}")
+
     print("=" * 50)
     print("Demo complete! Check the output directory for generated charts.")
 
@@ -475,6 +503,12 @@ async def demo_gallery() -> None:
         "values": [100, 105, 102, 110, 108, 115, 112, 120, 118, 125, 122, 130, 128, 135],
         "upper": [110, 115, 112, 120, 118, 125, 122, 130, 128, 135, 132, 140, 138, 145],
         "lower": [90, 95, 92, 100, 98, 105, 102, 110, 108, 115, 112, 120, 118, 125],
+    }
+    
+    # Rose chart data
+    rose_data = {
+        "labels": ["Rose 1", "Rose 2", "Rose 3", "Rose 4", "Rose 5", "Rose 6", "Rose 7", "Rose 8"],
+        "values": [40, 38, 32, 30, 28, 26, 22, 18],
     }
     
     # =========================================================================
@@ -591,6 +625,28 @@ async def demo_gallery() -> None:
                     style=style,
                     theme=theme,
                     title=f"Time Series ({style})",
+                    filename=filename,
+                )
+                print(f"  [OK] {filename}.png")
+            except Exception as e:
+                print(f"  [ERROR] {filename}.png - Error: {e}")
+    
+    # =========================================================================
+    # Rose Chart Gallery
+    # =========================================================================
+    print("\nGenerating Rose Chart Gallery...")
+    rose_styles = registry.list_styles().get("rose", [])
+    
+    for theme in AVAILABLE_THEMES:
+        for style in rose_styles:
+            filename = f"gallery/rose_{style}_{theme}"
+            try:
+                path = await generate_chart(
+                    chart_type="rose",
+                    data=rose_data,
+                    style=style,
+                    theme=theme,
+                    title=f"Rose Chart ({style})",
                     filename=filename,
                 )
                 print(f"  [OK] {filename}.png")
@@ -807,6 +863,10 @@ Examples:
     # Time series subcommand
     ts_parser = subparsers.add_parser("timeseries", help="Generate a time series chart")
     add_common_args(ts_parser)
+    
+    # Rose chart subcommand
+    rose_parser = subparsers.add_parser("rose", help="Generate a Nightingale rose chart")
+    add_common_args(rose_parser)
     
     # List command
     list_parser = subparsers.add_parser("list", help="List available themes and styles")

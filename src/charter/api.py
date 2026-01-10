@@ -11,6 +11,7 @@ from charter.charts.bar import BarChart
 from charter.charts.pie import PieChart
 from charter.charts.line import LineChart
 from charter.charts.timeseries import TimeSeriesChart
+from charter.charts.rose import RoseChart
 from charter.charts.dashboard import DashboardChart
 from charter.config.settings import get_settings
 from charter.output.manager import get_output_manager, OutputFormat
@@ -21,7 +22,7 @@ from charter.themes.presets import get_theme
 from charter.utils.validators import validate_chart_data
 
 
-ChartTypeLiteral = Literal["bar", "pie", "line", "timeseries"]
+ChartTypeLiteral = Literal["bar", "pie", "line", "timeseries", "rose"]
 
 
 async def generate_chart(
@@ -46,7 +47,7 @@ async def generate_chart(
     - File output with unique naming
     
     Args:
-        chart_type: Type of chart to generate ('bar', 'pie', 'line', 'timeseries')
+        chart_type: Type of chart to generate ('bar', 'pie', 'line', 'timeseries', 'rose')
         data: Chart data dictionary (format depends on chart type)
         style: Style name to use (default: 'default')
         theme: Theme name to use (default: from settings)
@@ -153,6 +154,7 @@ def _get_chart_class(chart_type: str):
         "pie": PieChart,
         "line": LineChart,
         "timeseries": TimeSeriesChart,
+        "rose": RoseChart,
     }
     
     chart_class = chart_classes.get(chart_type.lower())
@@ -259,6 +261,26 @@ async def generate_timeseries_chart(
     )
 
 
+async def generate_rose_chart(
+    data: dict[str, Any],
+    style: str = "default",
+    theme: str | None = None,
+    output_format: OutputFormat | None = None,
+    filename: str | None = None,
+    title: str | None = None,
+) -> Path:
+    """Generate a Nightingale rose chart. Convenience wrapper around generate_chart()."""
+    return await generate_chart(
+        chart_type="rose",
+        data=data,
+        style=style,
+        theme=theme,
+        output_format=output_format,
+        filename=filename,
+        title=title,
+    )
+
+
 async def generate_dashboard(
     panels: list[dict[str, Any]],
     layout: dict[str, Any] | None = None,
@@ -359,4 +381,3 @@ async def generate_dashboard(
     )
     
     return output_path
-

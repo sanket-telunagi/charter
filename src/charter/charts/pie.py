@@ -78,7 +78,12 @@ class PieChart(BaseChart):
         pie_kwargs = self._build_pie_kwargs(labels, colors)
         
         # Create the pie chart
-        wedges, texts, autotexts = ax.pie(values, **pie_kwargs)
+        pie_result = ax.pie(values, **pie_kwargs)
+        if len(pie_result) == 2:
+            wedges, texts = pie_result
+            autotexts = []
+        else:
+            wedges, texts, autotexts = pie_result
         
         # Style the text elements
         self._style_texts(texts, autotexts)

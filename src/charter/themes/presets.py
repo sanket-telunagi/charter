@@ -8,6 +8,17 @@ Available themes:
 - minimal: Reduced visual elements
 - vibrant: Bold, saturated colors
 - plotly_dark: Plotly-inspired dark theme with bright colors
+
+ECharts-inspired themes:
+- westeros: Cool blues and purples
+- wonderland: Greens and pinks
+- chalk: Chalk-style on dark background
+- essos: Warm reds and golds
+- macarons: Soft pastel colors
+- roma: Red and grey elegant style
+- walden: Forest and lake tones
+- purple_passion: Purple variations
+- shine: Bright, glossy colors
 """
 
 from charter.themes.base import Theme
@@ -174,6 +185,165 @@ PLOTLY_DARK_THEME = Theme(
 )
 
 
+# --- ECharts-Inspired Themes ---
+
+# Westeros
+WESTEROS_THEME = Theme(
+    name="westeros",
+    background_color="#FFFFFF",  # Usually light, sometimes transparent
+    text_color="#333333",
+    title_color="#516b91",
+    grid_color="#cccccc",
+    axis_color="#999999",
+    palette=[
+        "#516b91", "#59c4e6", "#edafda", "#93b7e3", 
+        "#a5e7f0", "#cbb0e3"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.5,
+    spine_visible=False,
+)
+
+# Wonderland
+WONDERLAND_THEME = Theme(
+    name="wonderland",
+    background_color="#FFFFFF",
+    text_color="#4ea397",
+    title_color="#4ea397",
+    grid_color="#cccccc",
+    axis_color="#999999",
+    palette=[
+        "#4ea397", "#22c3aa", "#7bd9a5", "#d0648a", 
+        "#f58db2", "#f2b3c9"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.5,
+    spine_visible=False,
+)
+
+# Chalk
+CHALK_THEME = Theme(
+    name="chalk",
+    background_color="#293441",
+    text_color="#ffffff",
+    title_color="#ffffff",
+    grid_color="#455466",
+    axis_color="#9aa8b8",
+    palette=[
+        "#fc97af", "#87f7cf", "#f7f494", "#72ccff", 
+        "#f7c5a0", "#d4a4eb", "#d2f5a6", "#76f2f2"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.3,
+    grid_style="dotted",
+    spine_visible=True,
+)
+
+# Essos
+ESSOS_THEME = Theme(
+    name="essos",
+    background_color="#fdfcf5",  # Warm white
+    text_color="#893448",
+    title_color="#893448",
+    grid_color="#f0e9d6",
+    axis_color="#b08b92",
+    palette=[
+        "#893448", "#d95850", "#eb8146", "#ffb248", 
+        "#f2d643", "#ebdba4"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.5,
+    spine_visible=False,
+)
+
+# Macarons
+MACARONS_THEME = Theme(
+    name="macarons",
+    background_color="#FFFFFF",
+    text_color="#59678c",
+    title_color="#59678c",
+    grid_color="#e6e6e6",
+    axis_color="#999999",
+    palette=[
+        "#2ec7c9", "#b6a2de", "#5ab1ef", "#ffb980", 
+        "#d87a80", "#8d98b3", "#e5cf0d", "#97b552", 
+        "#95706d", "#dc69aa", "#07a2a4", "#9a7fd1"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.5,
+    spine_visible=False,
+)
+
+# Roma
+ROMA_THEME = Theme(
+    name="roma",
+    background_color="#FFFFFF",
+    text_color="#333333",
+    title_color="#E01F54",
+    grid_color="#cccccc",
+    axis_color="#999999",
+    palette=[
+        "#E01F54", "#001852", "#f5e8c8", "#b8d2c7", 
+        "#c6b38e", "#a4d8c2", "#f3d999", "#d3758f"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.5,
+    spine_visible=False,
+)
+
+# Walden
+WALDEN_THEME = Theme(
+    name="walden",
+    background_color="#FFFFFF",
+    text_color="#626c91",
+    title_color="#626c91",
+    grid_color="#e6e6e6",
+    axis_color="#999999",
+    palette=[
+        "#3fb1e3", "#6be6c1", "#626c91", "#a0a7e6", 
+        "#c4ebad", "#96dee8"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.5,
+    spine_visible=False,
+)
+
+# Purple Passion
+PURPLE_PASSION_THEME = Theme(
+    name="purple_passion",
+    background_color="#5b5c6e",
+    text_color="#ffffff",
+    title_color="#ffffff",
+    grid_color="#767789",
+    axis_color="#cccccc",
+    palette=[
+        "#9b8bba", "#e098c7", "#8fd3e8", "#71669e", 
+        "#cc70af", "#7cb4cc"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.3,
+    spine_visible=True,
+)
+
+# Shine
+SHINE_THEME = Theme(
+    name="shine",
+    background_color="#FFFFFF",
+    text_color="#333333",
+    title_color="#c1232b",
+    grid_color="#cccccc",
+    axis_color="#999999",
+    palette=[
+        "#c1232b", "#27727b", "#fcce10", "#e87c25", 
+        "#b5c334", "#fe8463", "#9bca63", "#fad860", 
+        "#f3a43b", "#60c0dd", "#d7504b", "#c6e579"
+    ],
+    font_family="sans-serif",
+    grid_alpha=0.5,
+    spine_visible=False,
+)
+
+
 # Theme registry
 _THEMES: dict[str, Theme] = {
     "default": DEFAULT_THEME,
@@ -182,6 +352,17 @@ _THEMES: dict[str, Theme] = {
     "minimal": MINIMAL_THEME,
     "vibrant": VIBRANT_THEME,
     "plotly_dark": PLOTLY_DARK_THEME,
+    
+    # ECharts
+    "westeros": WESTEROS_THEME,
+    "wonderland": WONDERLAND_THEME,
+    "chalk": CHALK_THEME,
+    "essos": ESSOS_THEME,
+    "macarons": MACARONS_THEME,
+    "roma": ROMA_THEME,
+    "walden": WALDEN_THEME,
+    "purple_passion": PURPLE_PASSION_THEME,
+    "shine": SHINE_THEME,
 }
 
 AVAILABLE_THEMES = list(_THEMES.keys())
@@ -192,7 +373,7 @@ def get_theme(name: str) -> Theme:
     Get a theme by name.
     
     Args:
-        name: Theme name (default, dark, light, minimal, vibrant, plotly_dark)
+        name: Theme name (default, dark, light, minimal, vibrant, plotly_dark, etc.)
         
     Returns:
         Theme: The requested theme
@@ -217,4 +398,3 @@ def register_theme(theme: Theme) -> None:
     _THEMES[theme.name] = theme
     if theme.name not in AVAILABLE_THEMES:
         AVAILABLE_THEMES.append(theme.name)
-
