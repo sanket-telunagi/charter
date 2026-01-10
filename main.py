@@ -156,6 +156,20 @@ async def demo() -> None:
     )
     print(f"   Saved: {annotated_path}")
     
+    # Demo referer pie chart (like 'Referer of a Website' ECharts demo)
+    print("4d. Generating referer pie chart...")
+    referer_path = await generate_chart(
+        chart_type="pie",
+        data={
+            "labels": ["Search Engine", "Direct", "Email", "Union Ads", "Video Ads"],
+            "values": [1048, 735, 580, 484, 300],
+        },
+        style="referer",
+        theme="westeros",
+        title="Referer of a Website",
+    )
+    print(f"   Saved: {referer_path}")
+    
     # Demo line chart
     print("5. Generating line chart...")
     line_path = await generate_chart(
@@ -511,6 +525,12 @@ async def demo_gallery() -> None:
         "values": [40, 38, 32, 30, 28, 26, 22, 18],
     }
     
+    # Referer chart data
+    referer_data = {
+        "labels": ["Search Engine", "Direct", "Email", "Union Ads", "Video Ads"],
+        "values": [1048, 735, 580, 484, 300],
+    }
+    
     # =========================================================================
     # Bar Chart Gallery
     # =========================================================================
@@ -556,12 +576,17 @@ async def demo_gallery() -> None:
                 data = pie_transparent_data
             elif style in ["table_legend", "table_legend_donut"]:
                 data = pie_data  # Standard data works for table legend styles
+            elif style == "referer":
+                data = referer_data
             else:
                 data = pie_data
             
             # Determine title for different styles
             no_title_styles = ["annotated", "transparent_donut"]
             chart_title = f"Pie Chart ({style})" if style not in no_title_styles else None
+            
+            if style == "referer":
+                chart_title = "Referer of a Website"
             
             filename = f"gallery/pie_{style}_{theme}"
             try:

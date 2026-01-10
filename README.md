@@ -259,6 +259,29 @@ await generate_chart(
 | `table_legend_show_percent` | `True`, `False` | Show/hide percentage column |
 | `table_legend_header` | `True`, `False` | Show/hide column headers |
 
+#### Referer Style (ECharts Inspired)
+
+Based on the popular "Referer of a Website" example from ECharts/Charming. Features a donut chart with a vertical legend on the left and left-aligned title.
+
+```python
+await generate_chart(
+    chart_type="pie",
+    data={
+        "labels": ["Search Engine", "Direct", "Email", "Union Ads", "Video Ads"],
+        "values": [1048, 735, 580, 484, 300],
+    },
+    style="referer",
+    theme="westeros",
+    title="Referer of a Website",
+)
+```
+
+**Key Features:**
+- Vertical legend on the left
+- Left-aligned title
+- Donut style with shadows
+- Clean look without on-slice labels
+
 #### Pie Styles
 
 | Style | Description |
@@ -274,6 +297,7 @@ await generate_chart(
 | `transparent_donut` | Donut with transparent background and center title with rounded box |
 | `table_legend` | Pie chart with centered table legend on the side showing labels, values, and percentages |
 | `table_legend_donut` | Donut chart with center title (with background box) and centered table legend on the side |
+| `referer` | ECharts-style donut with vertical legend and shadow effect |
 
 ---
 

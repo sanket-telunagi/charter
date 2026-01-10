@@ -145,6 +145,9 @@ class PieStyle(Style):
     table_legend_show_value: bool = True
     table_legend_show_percent: bool = True
     table_legend_header: bool = False
+    # Legend options
+    show_legend: bool = False
+    legend_position: Literal["none", "right", "left", "top", "bottom"] = "none"
 
 
 # Built-in pie styles
@@ -155,6 +158,17 @@ PIE_STYLES: dict[str, PieStyle] = {
     "minimal": PieStyle(name="minimal", show_percentages=False, show_labels=True),
     "detailed": PieStyle(name="detailed", show_percentages=True, show_labels=True),
     "shadow": PieStyle(name="shadow", shadow=True, explode=True, explode_amount=0.02),
+    "referer": PieStyle(
+        name="referer",
+        donut=True,
+        donut_ratio=0.5,
+        shadow=True,
+        show_labels=False,
+        show_percentages=False,
+        show_legend=True,
+        legend_position="left",
+        start_angle=90.0,
+    ),
     "infographic": PieStyle(
         name="infographic",
         donut=True,

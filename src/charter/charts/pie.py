@@ -88,24 +88,83 @@ class PieChart(BaseChart):
         # Style the text elements
         self._style_texts(texts, autotexts)
         
+        # Add legend if requested
+        if self.style.show_legend and self.style.legend_position != "none":
+            self._add_legend(ax, wedges, labels)
+        
         # Handle donut style
         if self.style.donut:
             self._create_donut_hole(ax)
         
         # Apply title (pie charts don't have x/y labels)
         if self.title:
-            ax.set_title(
-                self.title,
-                fontsize=self.theme.title_font_size,
-                color=self.theme.title_color,
-                fontfamily=self.theme.font_family,
-                pad=20,
-            )
+            title_kwargs = {
+                "fontsize": self.theme.title_font_size,
+                "color": self.theme.title_color,
+                "fontfamily": self.theme.font_family,
+                "pad": 20,
+            }
+            # For referer style (or if legend is on left), align title left
+            if self.style.legend_position == "left":
+                title_kwargs["loc"] = "left"
+                title_kwargs["x"] = 0.0  # Align to left edge of axes
+            
+            ax.set_title(self.title, **title_kwargs)
         
         # Equal aspect ratio ensures circular pie
         ax.set_aspect("equal")
         
         return self._finalize_figure(fig)
+    
+    def _add_legend(
+        self,
+        ax: plt.Axes,
+        handles: list,
+        labels: list[str],
+    ) -> None:
+        """Add standard matplotlib legend."""
+        loc_map = {
+            "top": "upper center",
+            "bottom": "lower center",
+            "right": "center right",
+            "left": "center left",
+        }
+        
+        bbox_map = {
+            "top": (0.5, 1.05),
+            "bottom": (0.5, -0.05),
+            "right": (1.05, 0.5),
+            "left": (-0.15, 0.5),
+        }
+        
+        position = self.style.legend_position
+        loc = loc_map.get(position, "best")
+        bbox = bbox_map.get(position)
+        
+        # Determine columns
+        ncol = 1
+        if position in ["top", "bottom"]:
+            ncol = len(labels)
+            
+        legend = ax.legend(
+            handles,
+            labels,
+            loc=loc,
+            bbox_to_anchor=bbox,
+            ncol=ncol,
+            fontsize=self.theme.legend_font_size,
+            framealpha=0.9,
+            facecolor=self.theme.background_color,
+            edgecolor=self.theme.grid_color,
+            title="Access From" if self.style.name == "referer" else None,
+        )
+        
+        # Set legend text color
+        for text in legend.get_texts():
+            text.set_color(self.theme.text_color)
+        if legend.get_title():
+            legend.get_title().set_color(self.theme.text_color)
+            legend.get_title().set_fontweight("bold")
     
     def _render_infographic(self) -> Figure:
         """Render infographic-style pie chart with external labels and leader lines."""
